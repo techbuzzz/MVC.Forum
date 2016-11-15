@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Web;
 using System.Web.Mvc;
 using MVCForum.Domain.Constants;
 using MVCForum.Domain.DomainModel;
@@ -14,41 +15,102 @@ namespace MVCForum.Website.ViewModels
         public bool UserCanPostTopics { get; set; }
     }
 
-    public class ActiveTopicsViewModel
+    public class TopicViewModel
     {
-        public PagedList<Topic> Topics { get; set; }
-        public Dictionary<Category, PermissionSet> AllPermissionSets { get; set; }
+        public Topic Topic { get; set; }
+        public PermissionSet Permissions { get; set; }
+        public bool MemberIsOnline { get; set; }
 
+        // Poll
+        public PollViewModel Poll { get; set; }
+
+        // Post Stuff
+        public PostViewModel StarterPost { get; set; }
+        public List<PostViewModel> Posts { get; set; }
         public int? PageIndex { get; set; }
         public int? TotalCount { get; set; }
+        public int? TotalPages { get; set; }
+        public string LastPostPermaLink { get; set; }
 
-        public MembershipUser User { get; set; }
+        // Permissions
+        public bool DisablePosting { get; set; }
+
+        // Subscription
+        public bool IsSubscribed { get; set; }
+
+        // Votes
+        public int VotesUp { get; set; }
+        public int VotesDown { get; set; }
+
+        // Quote/Reply
+        public string QuotedPost { get; set; }
+        public Guid? ReplyTo { get; set; }
+        public string ReplyToUsername { get; set; }
+
+        // Stats
+        public int Answers { get; set; }
+        public int Views { get; set; }
+
+        // Misc
+        public bool ShowUnSubscribedLink { get; set; }
+    }
+
+    public class ActiveTopicsViewModel
+    {
+        public List<TopicViewModel> Topics { get; set; }
+        public int? PageIndex { get; set; }
+        public int? TotalCount { get; set; }
+        public int? TotalPages { get; set; }
+    }
+
+    public class PostedInViewModel
+    {
+        public List<TopicViewModel> Topics { get; set; }
+        public int? PageIndex { get; set; }
+        public int? TotalCount { get; set; }
+        public int? TotalPages { get; set; }
+    }
+
+    public class HotTopicsViewModel
+    {
+        public List<TopicViewModel> Topics { get; set; }
     }
 
     public class TagTopicsViewModel
     {
-        public PagedList<Topic> Topics { get; set; }
-        public Dictionary<Category, PermissionSet> AllPermissionSets { get; set; }
-
+        public List<TopicViewModel> Topics { get; set; }
         public int? PageIndex { get; set; }
         public int? TotalCount { get; set; }
-
+        public int? TotalPages { get; set; }
         public string Tag { get; set; }
-
-        public MembershipUser User { get; set; }
+        public Guid TagId { get; set; }
+        public bool IsSubscribed { get; set; }
     }
 
-    public class CreateTopicViewModel
+    public class CheckCreateTopicPermissions
+    {
+        public bool CanUploadFiles { get; set; }
+        public bool CanStickyTopic { get; set; }
+        public bool CanLockTopic { get; set; }
+        public bool CanCreatePolls { get; set; }
+        public bool CanInsertImages { get; set; }
+    }
+
+    public class CreateEditTopicViewModel
     {
         [Required]
-        [StringLength(600)]
+        [StringLength(100)]
         [ForumMvcResourceDisplayName("Topic.Label.TopicTitle")]
         public string Name { get; set; }
 
         [UIHint(AppConstants.EditorType), AllowHtml]
+        [StringLength(6000)]
         public string Content { get; set; }
 
+        [ForumMvcResourceDisplayName("Post.Label.IsStickyTopic")]
         public bool IsSticky { get; set; }
+
+        [ForumMvcResourceDisplayName("Post.Label.LockTopic")]
         public bool IsLocked { get; set; }
 
         [Required]
@@ -57,29 +119,30 @@ namespace MVCForum.Website.ViewModels
 
         public string Tags { get; set; }
 
-        public IEnumerable<Category> Categories { get; set; }
+        [ForumMvcResourceDisplayName("Topic.Label.PollCloseAfterDays")]
+        public int PollCloseAfterDays { get; set; }
 
-        public List<PollAnswer> PollAnswers { get; set; }
+        public List<SelectListItem> Categories { get; set; }
+
+        public IList<PollAnswer> PollAnswers { get; set; }
             
         [ForumMvcResourceDisplayName("Topic.Label.SubscribeToTopic")]
         public bool SubscribeToTopic { get; set; }
 
-        public MembershipUser LoggedOnUser { get; set; }
-    }
+        [ForumMvcResourceDisplayName("Topic.Label.UploadFiles")]
+        public HttpPostedFileBase[] Files { get; set; }
 
-    public class ShowTopicViewModel
-    {
-        public Post TopicStarterPost { get; set; }
-        public Topic Topic { get; set; }
-        public PagedList<Post> Posts { get; set; }
-        public PermissionSet Permissions { get; set; }
-        public int? PageIndex { get; set; }
-        public int? TotalCount { get; set; }
-        public MembershipUser User { get; set; }
-        public bool IsSubscribed { get; set; }
-        public bool UserHasAlreadyVotedInPoll { get; set; }
-        public int TotalVotesInPoll { get; set; }
-        public string PostContent { get; set; }
+        // Permissions stuff
+        public CheckCreateTopicPermissions OptionalPermissions { get; set; }
+
+        // Edit Properties
+        [HiddenInput]
+        public Guid Id { get; set; }
+
+        [HiddenInput]
+        public Guid TopicId { get; set; }
+
+        public bool IsTopicStarter { get; set; }
     }
 
     public class GetMorePostsViewModel
@@ -89,15 +152,7 @@ namespace MVCForum.Website.ViewModels
         public string Order { get; set; }
     }
 
-    public class ShowMorePostsViewModel
-    {
-        public PagedList<Post> Posts { get; set; }
-        public PermissionSet Permissions { get; set; }
-        public MembershipUser User { get; set; }
-        public Topic Topic { get; set; }
-    }
-
-    public class ShowPollViewModel
+    public class PollViewModel
     {
         public Poll Poll { get; set; }
         public bool UserHasAlreadyVoted { get; set; }
@@ -109,14 +164,6 @@ namespace MVCForum.Website.ViewModels
     {
         public Guid PollId { get; set; }
         public Guid AnswerId { get; set; }
-    }
-
-    public class ViewTopicViewModel
-    {
-        public Topic Topic { get; set; }
-        public PermissionSet Permissions { get; set; }
-        public MembershipUser User { get; set; }
-        public bool ShowCategoryName { get; set; }
     }
 
     public class MoveTopicViewModel

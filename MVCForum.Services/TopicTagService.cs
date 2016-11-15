@@ -1,25 +1,33 @@
-﻿using System.Collections.Generic;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-using System.Linq;
-using MVCForum.Utilities;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using Domain.Constants;
+    using System;
+    using System.Collections.Generic;
+    using Domain.DomainModel;
+    using Domain.Interfaces.Services;
+    using System.Linq;
+    using System.Data.Entity;
+    using Domain.Interfaces;
+    using Data.Context;
+    using Utilities;
+
     public partial class TopicTagService : ITopicTagService
     {
-        private readonly ITopicTagRepository _tagRepository;
-        private readonly ITopicRepository _topicRepository;
+        private readonly IBadgeService _badgeService;
+        private readonly MVCForumContext _context;
+        private readonly ICacheService _cacheService;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="tagRepository"></param>
-        public TopicTagService(ITopicTagRepository tagRepository, ITopicRepository topicRepository)
+        /// <param name="context"></param>
+        /// <param name="badgeService"></param>
+        /// <param name="cacheService"></param>
+        public TopicTagService(IMVCForumContext context, IBadgeService badgeService, ICacheService cacheService)
         {
-            _tagRepository = tagRepository;
-            _topicRepository = topicRepository;
+            _badgeService = badgeService;
+            _cacheService = cacheService;
+            _context = context as MVCForumContext;
         }
 
         /// <summary>
@@ -28,7 +36,8 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IEnumerable<TopicTag> GetAll()
         {
-            return _tagRepository.GetAll();
+            var cacheKey = string.Concat(CacheKeys.TopicTag.StartsWith, "GetAll");
+            return _cacheService.CachePerRequest(cacheKey, () => _context.TopicTag.AsNoTracking());
         }
 
         /// <summary>
@@ -37,8 +46,29 @@ namespace MVCForum.Services
         /// <param name="tagName"></param>
         public void DeleteByName(string tagName)
         {
-            var tag = _tagRepository.GetTagName(tagName);
-            _tagRepository.Delete(tag);
+            var tag = GetTagName(tagName);
+            Delete(tag);
+        }
+
+        public IList<TopicTag> GetStartsWith(string term, int amountToTake = 4)
+        {
+            term = StringUtils.SafePlainText(term);
+            return _context.TopicTag
+                .AsNoTracking()
+                .Where(x => x.Tag.StartsWith(term))
+                .Take(amountToTake)
+                .ToList();
+        }
+
+        public IList<TopicTag> GetContains(string term, int amountToTake = 4)
+        {
+            term = StringUtils.SafePlainText(term);
+            var cacheKey = string.Concat(CacheKeys.TopicTag.StartsWith, "GetContains-", amountToTake, "-", term);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.TopicTag
+                                                                    .AsNoTracking()
+                                                                    .Where(x => x.Tag.ToUpper().Contains(term.ToUpper()))
+                                                                    .Take(amountToTake)
+                                                                    .ToList());
         }
 
         /// <summary>
@@ -48,7 +78,9 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IEnumerable<TopicTag> GetByTopic(Topic topic)
         {
-            return _tagRepository.GetByTopic(topic);
+            return _context.TopicTag
+                .Where(x => x.Topics.Contains(topic))
+                .ToList();
         }
 
         /// <summary>
@@ -59,7 +91,18 @@ namespace MVCForum.Services
         /// <returns></returns>
         public PagedList<TopicTag> GetPagedGroupedTags(int pageIndex, int pageSize)
         {
-            return _tagRepository.GetPagedGroupedTags(pageIndex, pageSize);
+            var totalCount = _context.TopicTag.Count();
+
+            // Get the topics using an efficient
+            var results = _context.TopicTag
+                                .OrderByDescending(x => x.Tag)
+                                .Skip((pageIndex - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
+
+
+            // Return a paged list
+            return new PagedList<TopicTag>(results, pageIndex, pageSize, totalCount);
         }
 
         /// <summary>
@@ -71,7 +114,20 @@ namespace MVCForum.Services
         /// <returns></returns>
         public PagedList<TopicTag> SearchPagedGroupedTags(string search, int pageIndex, int pageSize)
         {
-            return _tagRepository.SearchPagedGroupedTags(StringUtils.SafePlainText(search), pageIndex, pageSize);            
+            search = StringUtils.SafePlainText(search);
+            var totalCount = _context.TopicTag.Count(x => x.Tag.Contains(search));
+
+            // Get the topics using an efficient
+            var results = _context.TopicTag
+                                .Where(x => x.Tag.Contains(search))
+                                .OrderBy(x => x.Tag)
+                                .Skip((pageIndex - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToList();
+
+
+            // Return a paged list
+            return new PagedList<TopicTag>(results, pageIndex, pageSize, totalCount);
         }
 
         /// <summary>
@@ -81,7 +137,21 @@ namespace MVCForum.Services
         /// <returns></returns>
         public TopicTag Add(TopicTag topicTag)
         {
-            return _tagRepository.Add(topicTag);
+            _context.TopicTag.Add(topicTag);
+            return topicTag;
+        }
+
+        public TopicTag Get(Guid id)
+        {
+            var cacheKey = string.Concat(CacheKeys.TopicTag.StartsWith, "Get-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.TopicTag.FirstOrDefault(x => x.Id == id));
+        }
+
+        public TopicTag Get(string tag)
+        {
+            tag = StringUtils.SafePlainText(tag);
+            var cacheKey = string.Concat(CacheKeys.TopicTag.StartsWith, "Get-", tag);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.TopicTag.FirstOrDefault(x => x.Slug.Equals(tag)));
         }
 
         /// <summary>
@@ -108,7 +178,7 @@ namespace MVCForum.Services
 
                 foreach (var newTag in newTagNames.Distinct())
                 {
-                    var tag = _tagRepository.GetTagName(newTag);
+                    var tag = GetTagName(newTag);
                     if (tag != null)
                     {
                         // Exists
@@ -123,13 +193,16 @@ namespace MVCForum.Services
                                 Slug = ServiceHelpers.CreateUrl(newTag)
                             };
 
-                        _tagRepository.Add(nTag);
+                        Add(nTag);
                         newTags.Add(nTag);
                     }
                 }
 
                 newTags.AddRange(existingTags);
                 topic.Tags = newTags;
+
+                // Fire the tag badge check
+                _badgeService.ProcessBadge(BadgeType.Tag, topic.User);
             }
         }
 
@@ -144,9 +217,9 @@ namespace MVCForum.Services
                 {
                     // If this tag has a count of topics greater than this one topic
                     // then its tagged by more topics so don't delete
-                    if(topicTag.Topics.Count() <= 1)
+                    if(topicTag.Topics.Count <= 1)
                     {
-                        _tagRepository.Delete(topicTag);   
+                        Delete(topicTag);   
                     }
                 }
         }
@@ -159,7 +232,7 @@ namespace MVCForum.Services
         {
                 foreach (var topicTag in tags)
                 {
-                    _tagRepository.Delete(topicTag);
+                    Delete(topicTag);
                 }
         }
 
@@ -178,7 +251,7 @@ namespace MVCForum.Services
                 safeNewName = safeNewName.Replace(" ", "-");
 
                 // get all the old tags by name
-                var oldTag = _tagRepository.GetTagName(safeOldName);
+                var oldTag = GetTagName(safeOldName);
                 if(oldTag != null)
                 {
                     oldTag.Tag = safeNewName;
@@ -189,10 +262,39 @@ namespace MVCForum.Services
         /// Get a specified amount of the most popular tags, ordered by use amount
         /// </summary>
         /// <param name="amount"></param>
+        /// <param name="allowedCategories"></param>
         /// <returns></returns>
-        public Dictionary<string, int> GetPopularTags(int? amount)
+        public Dictionary<TopicTag, int> GetPopularTags(int? amount, List<Category> allowedCategories)
         {
-                return _tagRepository.GetPopularTags(amount);
+            var categoryIds = allowedCategories.Select(x => x.Id);
+            amount = amount ?? int.MaxValue;
+
+            //var test = _context.TopicTag.SqlQuery("").ToList<TopicTag>();
+
+            var tags = _context.TopicTag
+                .Include(x => x.Topics.Select(s => s.Category))
+                .AsNoTracking()
+                .Select(x => new
+                {
+                    topictag = x,
+                    topiccount = x.Topics.Count(c => categoryIds.Contains(c.Category.Id))
+                })
+                .Where(x => x.topiccount > 0)
+                .OrderByDescending(x => x.topiccount)
+                .Take((int)amount);
+
+            return tags.ToDictionary(tag => tag.topictag, tag => tag.topiccount);
+        }
+
+        public TopicTag GetTagName(string tag)
+        {
+            tag = StringUtils.SafePlainText(tag);
+            return _context.TopicTag.FirstOrDefault(x => x.Tag == tag);
+        }
+
+        public void Delete(TopicTag item)
+        {
+            _context.TopicTag.Remove(item);
         }
     }
 }

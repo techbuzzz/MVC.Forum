@@ -1,18 +1,29 @@
-﻿using System.Web;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Utilities;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using System;
+    using System.Linq;
+    using System.Data.Entity;
+    using Domain.Constants;
+    using Domain.DomainModel;
+    using Domain.DomainModel.Enums;
+    using Domain.Interfaces;
+    using Domain.Interfaces.Services;
+    using Data.Context;
+
     public partial class SettingsService : ISettingsService
     {
-        private readonly ISettingsRepository _settingsRepository;
+        private readonly MVCForumContext _context;
+        private readonly ICacheService _cacheService;
 
-        public SettingsService(ISettingsRepository settingsRepository)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context"> </param>
+        /// <param name="cacheService"></param>
+        public SettingsService(IMVCForumContext context, ICacheService cacheService)
         {
-            _settingsRepository = settingsRepository;
+            _cacheService = cacheService;
+            _context = context as MVCForumContext;
         }
 
         /// <summary>
@@ -23,42 +34,34 @@ namespace MVCForum.Services
         {
             if (useCache)
             {
-                var objectContextKey = HttpContext.Current.GetHashCode().ToString("x");
-                if (!HttpContext.Current.Items.Contains(objectContextKey))
+                var cachedSettings = _cacheService.Get<Settings>(CacheKeys.Settings.Main);
+                if (cachedSettings == null)
                 {
-                    HttpContext.Current.Items.Add(objectContextKey, _settingsRepository.GetSettings());
+                    cachedSettings = GetSettingsLocal(false);
+                    _cacheService.Set(CacheKeys.Settings.Main, cachedSettings, CacheTimes.OneDay);
                 }
-                return HttpContext.Current.Items[objectContextKey] as Settings;   
+                return cachedSettings;
             }
-            return _settingsRepository.GetSettings();
+            return GetSettingsLocal(true);
         }
 
-        /// <summary>
-        /// Save settings (Clears cache upon save)
-        /// </summary>
-        /// <param name="settings"></param>
-        public void Save(Settings settings)
+        private Settings GetSettingsLocal(bool addTracking)
         {
-            settings.AdminEmailAddress = StringUtils.SafePlainText(settings.AdminEmailAddress);
-            settings.AkismentKey = StringUtils.SafePlainText(settings.AkismentKey);
-            settings.CurrentDatabaseVersion = StringUtils.SafePlainText(settings.CurrentDatabaseVersion);
-            settings.ForumName = StringUtils.SafePlainText(settings.ForumName);
-            settings.ForumUrl = StringUtils.SafePlainText(settings.ForumUrl);
-            settings.NotificationReplyEmail = StringUtils.SafePlainText(settings.NotificationReplyEmail);
-            settings.SMTP = StringUtils.SafePlainText(settings.SMTP);
-            settings.SMTPPassword = StringUtils.SafePlainText(settings.SMTPPassword);
-            settings.SMTPPort = StringUtils.SafePlainText(settings.SMTPPort);
-            settings.SMTPUsername = StringUtils.SafePlainText(settings.SMTPUsername);
-            settings.SpamAnswer = StringUtils.SafePlainText(settings.SpamAnswer);
-            settings.SpamQuestion = StringUtils.SafePlainText(settings.SpamQuestion);
-            settings.PageTitle = StringUtils.SafePlainText(settings.PageTitle);
-            settings.MetaDesc = StringUtils.SafePlainText(settings.MetaDesc);
-            _settingsRepository.Update(settings);
+            var settings = _context.Setting
+                              .Include(x => x.DefaultLanguage)
+                              .Include(x => x.NewMemberStartingRole);
+
+            return addTracking ? settings.FirstOrDefault() : settings.AsNoTracking().FirstOrDefault();
         }
 
         public Settings Add(Settings settings)
         {
-            return _settingsRepository.Add(settings);
+            return _context.Setting.Add(settings);
+        }
+
+        public Settings Get(Guid id)
+        {
+            return _context.Setting.FirstOrDefault(x => x.Id == id);
         }
     }
 }

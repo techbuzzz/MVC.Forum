@@ -1,14 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
-using DataAnnotationsExtensions;
 using MVCForum.Domain.Constants;
 using MVCForum.Domain.DomainModel;
 
 namespace MVCForum.Website.Areas.Admin.ViewModels
 {
+    #region Users Points
+
+    public class ManageUsersPointsViewModel
+    {
+        public MembershipUser User { get; set; }
+        public List<MembershipUserPoints> AllPoints { get; set; }
+
+        [Display(Name = "Amount of points to give this user")]
+        public int? Amount { get; set; }
+
+        [Display(Name = "Notes about this point allocation")]
+        [MaxLength(400)]
+        public string Note { get; set; } 
+
+        public Guid Id { get; set; }
+    }
+
+    #endregion
 
     #region Users
 
@@ -45,7 +61,18 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
 
         public int? PageIndex { get; set; }
         public int? TotalCount { get; set; }
+        public int TotalPages { get; set; }
         public string Search { get; set; }
+
+    }
+
+    public class UserPointChartItem
+    {
+        public MembershipUserPoints MembershipUserPoints { get; set; }
+        public Post Post { get; set; }
+        public Vote Vote { get; set; }
+        public Domain.DomainModel.Badge Badge { get; set; }
+        public TopicTag TopicTag { get; set; }
 
     }
 
@@ -69,7 +96,7 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         public string PasswordAnswer { get; set; }
 
         [Display(Name = "Email Address")]
-        [Email]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Display(Name = "Signature")]
@@ -78,7 +105,7 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         public string Signature { get; set; }
 
         [Display(Name = "Age")]
-        [Numeric]
+        [Range(0, int.MaxValue)]
         public int? Age { get; set; }
 
         [Display(Name = "Location")]
@@ -117,6 +144,9 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
 
         [Display(Name = "User is Locked Out")]
         public bool IsLockedOut { get; set; }
+
+        [Display(Name = "User is Banned")]
+        public bool IsBanned { get; set; }
 
         [Display(Name = "Comment")]
         public string Comment { get; set; }

@@ -1,23 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
-using MVCForum.Domain.Constants;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Domain.Interfaces.UnitOfWork;
-using MVCForum.Website.Application;
-using MVCForum.Website.ViewModels;
-using System.Linq;
-
-namespace MVCForum.Website.Controllers
+﻿namespace MVCForum.Website.Controllers
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web.Mvc;
+    using Application;
+    using Domain.Constants;
+    using Domain.DomainModel;
+    using Domain.DomainModel.Enums;
+    using Domain.Interfaces.Services;
+    using Domain.Interfaces.UnitOfWork;
+    using ViewModels;
+    using ViewModels.Mapping;
+
     public partial class CategoryController : BaseController
     {
         private readonly ICategoryService _categoryService;
         private readonly ICategoryNotificationService _categoryNotificationService;
         private readonly ITopicService _topicService;
-
-        private MembershipUser LoggedOnUser;
-        private MembershipRole UsersRole;
+        private readonly IRoleService _roleService;
 
         /// <summary>
         /// Constructor
@@ -31,20 +31,19 @@ namespace MVCForum.Website.Controllers
         /// <param name="settingsService"> </param>
         /// <param name="topicService"> </param>
         /// <param name="categoryNotificationService"> </param>
+        /// <param name="cacheService"></param>
         public CategoryController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager,
             IMembershipService membershipService,
             ILocalizationService localizationService,
             IRoleService roleService,
             ICategoryService categoryService,
-            ISettingsService settingsService, ITopicService topicService, ICategoryNotificationService categoryNotificationService)
-            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService)
+            ISettingsService settingsService, ITopicService topicService, ICategoryNotificationService categoryNotificationService, ICacheService cacheService)
+            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService, cacheService)
         {
             _categoryService = categoryService;
             _topicService = topicService;
             _categoryNotificationService = categoryNotificationService;
-
-            LoggedOnUser = UserIsAuthenticated ? MembershipService.GetUser(Username) : null;
-            UsersRole = LoggedOnUser == null ? RoleService.GetRole(AppConstants.GuestRoleName) : LoggedOnUser.Roles.FirstOrDefault();
+            _roleService = roleService;
         }
 
         public ActionResult Index()
@@ -55,53 +54,71 @@ namespace MVCForum.Website.Controllers
         [ChildActionOnly]
         public PartialViewResult ListMainCategories()
         {
-            var catViewModel = new CategoryListViewModel
-            {
-                AllPermissionSets = new Dictionary<Category, PermissionSet>()
-            };
-
             using (UnitOfWorkManager.NewUnitOfWork())
             {
-                foreach (var category in _categoryService.GetAllMainCategories(true))
-                {
-                    var permissionSet = RoleService.GetPermissions(category, UsersRole);
-                    catViewModel.AllPermissionSets.Add(category, permissionSet);
-                }
-            }
 
-            return PartialView(new IndexCategoryViewModel
-            {
-                Categories = catViewModel
-            });
+                var catViewModel = new CategoryListViewModel
+                {
+                    AllPermissionSets = ViewModelMapping.GetPermissionsForCategories(_categoryService.GetAllMainCategories(), _roleService, UsersRole)
+                };
+                return PartialView(catViewModel);
+            }
         }
 
         [ChildActionOnly]
         public PartialViewResult ListCategorySideMenu()
         {
-            var catViewModel = new CategoryListViewModel { 
-                AllPermissionSets = new Dictionary<Category, PermissionSet>()};
-
             using (UnitOfWorkManager.NewUnitOfWork())
             {
-                foreach (var category in _categoryService.GetAllMainCategories())
+                var catViewModel = new CategoryListViewModel
+                {
+                    AllPermissionSets = ViewModelMapping.GetPermissionsForCategories(_categoryService.GetAll(), _roleService, UsersRole)
+                };
+                return PartialView(catViewModel);
+            }
+        }
+
+        [Authorize]
+        [ChildActionOnly]
+        public PartialViewResult GetSubscribedCategories()
+        {
+            var viewModel = new List<CategoryViewModel>();
+            using (UnitOfWorkManager.NewUnitOfWork())
+            {
+                var categories = LoggedOnReadOnlyUser.CategoryNotifications.Select(x => x.Category);
+                foreach (var category in categories)
                 {
                     var permissionSet = RoleService.GetPermissions(category, UsersRole);
-                    catViewModel.AllPermissionSets.Add(category, permissionSet);
+                    var topicCount = category.Topics.Count;
+                    var latestTopicInCategory = category.Topics.OrderByDescending(x => x.LastPost.DateCreated).FirstOrDefault();
+                    var postCount = (category.Topics.SelectMany(x => x.Posts).Count() - 1);
+                    var model = new CategoryViewModel
+                    {
+                        Category = category,
+                        LatestTopic = latestTopicInCategory,
+                        Permissions = permissionSet,
+                        PostCount = postCount,
+                        TopicCount = topicCount,
+                        ShowUnSubscribedLink = true
+                    };
+                    viewModel.Add(model);
                 }
             }
 
-            return PartialView(catViewModel);
+            return PartialView(viewModel);
         }
 
 
         [ChildActionOnly]
         public PartialViewResult GetCategoryBreadcrumb(Category category)
         {
+            var allowedCategories = _categoryService.GetAllowedCategories(UsersRole);
+
             using (UnitOfWorkManager.NewUnitOfWork())
             {
                 var viewModel = new BreadcrumbViewModel
                 {
-                    Categories = _categoryService.GetCategoryParents(category).ToList(),
+                    Categories = _categoryService.GetCategoryParents(category,allowedCategories),
                     Category = category
                 };
                 return PartialView("GetCategoryBreadcrumb", viewModel);
@@ -115,31 +132,35 @@ namespace MVCForum.Website.Controllers
                 // Get the category
                 var category = _categoryService.GetBySlugWithSubCategories(slug);
 
+                // Allowed Categories for this user
+                var allowedCategories = _categoryService.GetAllowedCategories(UsersRole);
+
                 // Set the page index
                 var pageIndex = p ?? 1;
 
                 // check the user has permission to this category
                 var permissions = RoleService.GetPermissions(category.Category, UsersRole);
 
-                if (!permissions[AppConstants.PermissionDenyAccess].IsTicked)
+                if (!permissions[SiteConstants.Instance.PermissionDenyAccess].IsTicked)
                 {
 
                     var topics = _topicService.GetPagedTopicsByCategory(pageIndex,
                                                                         SettingsService.GetSettings().TopicsPerPage,
                                                                         int.MaxValue, category.Category.Id);
 
-                    var isSubscribed = UserIsAuthenticated && (_categoryNotificationService.GetByUserAndCategory(LoggedOnUser, category.Category).Any());
+                    var topicViewModels = ViewModelMapping.CreateTopicViewModels(topics.ToList(), RoleService, UsersRole, LoggedOnReadOnlyUser, allowedCategories, SettingsService.GetSettings());
 
                     // Create the main view model for the category
-                    var viewModel = new ViewCategoryViewModel
+                    var viewModel = new CategoryViewModel
                         {
                             Permissions = permissions,
-                            Topics = topics,
+                            Topics = topicViewModels,
                             Category = category.Category,
                             PageIndex = pageIndex,
                             TotalCount = topics.TotalCount,
-                            User = LoggedOnUser,
-                            IsSubscribed = isSubscribed
+                            TotalPages = topics.TotalPages,
+                            User = LoggedOnReadOnlyUser,
+                            IsSubscribed = UserIsAuthenticated && (_categoryNotificationService.GetByUserAndCategory(LoggedOnReadOnlyUser, category.Category).Any())
                         };
 
                     // If there are subcategories then add then with their permissions
@@ -164,7 +185,7 @@ namespace MVCForum.Website.Controllers
             }
         }
 
-        [OutputCache(Duration = AppConstants.DefaultCacheLengthInSeconds)]
+        [OutputCache(Duration = (int)CacheTimes.TwoHours)]
         public ActionResult CategoryRss(string slug)
         {
             using (UnitOfWorkManager.NewUnitOfWork())
@@ -180,9 +201,9 @@ namespace MVCForum.Website.Controllers
                 // check the user has permission to this category
                 var permissions = RoleService.GetPermissions(category, UsersRole);
 
-                if (!permissions[AppConstants.PermissionDenyAccess].IsTicked)
+                if (!permissions[SiteConstants.Instance.PermissionDenyAccess].IsTicked)
                 {
-                    var topics = _topicService.GetRssTopicsByCategory(AppConstants.ActiveTopicsListSize, category.Id);
+                    var topics = _topicService.GetRssTopicsByCategory(50, category.Id);
 
                     rssTopics.AddRange(topics.Select(x =>
                                                          {

@@ -5,46 +5,50 @@
     ViewBag.Title = "All Roles";
 }
 
-<h2>Roles</h2>
-<p>You must remove all users from a role before you can delete it</p>
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Edit</th>
-            <th>Role</th>
-            <th>Users In Role</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var role in Model.MembershipRoles)
-        {        
-            var usersCount = role.Users.Count;
-            var hideRole = (role.RoleName == AppConstants.AdminRoleName || role.RoleName == AppConstants.GuestRoleName || role.RoleName == AppConstants.ModeratorRoleName);
+<div class="panel">
+    <div class="panel-heading">
+        <h5>@ViewBag.Title</h5>
+    </div>
+    <div class="panel-content">
+        <p><label class="label label-danger">Important</label> You must remove all users from a role before you can delete it</p>
 
-            if (!hideRole)
-            {
+        <table class="table table-bordered table-striped">
+            <thead>
                 <tr>
-                    <td>
-                        <a href="@Url.Action("EditRole", new { role.Id })" class="btn btn-small">
-                            <i class="icon-pencil"></i>
-                        </a>
-                    </td>
-                    <td>@role.RoleName</td>
-                    <td>@usersCount</td>
-                    <td>
-                        <a href="@Url.Action("DeleteRole", new { role.Id })" class="btn btn-small">
-                            <i class="icon-remove"></i>
-                        </a>
-                    </td>
+                    <th>Edit</th>
+                    <th>Role</th>
+                    <th>Users In Role</th>
+                    <th>Delete</th>
                 </tr>
-            }
-        }
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                @foreach (var role in Model.MembershipRoles)
+                {
+                    var usersCount = role.Users.Count;
+                    var hideRole = (role.RoleName == AppConstants.AdminRoleName || role.RoleName == AppConstants.GuestRoleName);
 
-
-<div class="btn-group">
-    @Html.ActionLink("Back", "Index", "Admin", new { Area = "Admin" }, new { @class = "btn btn-success" })
-    @Html.ActionLink("Create a new Role", "AddRole", new { }, new { @class = "btn btn-success" })
+                    if (!hideRole)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@Url.Action("EditRole", new { role.Id })" class="btn-mvc">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                            <td>@role.RoleName</td>
+                            <td>@usersCount</td>
+                            <td>
+                                <a href="@Url.Action("DeleteRole", new { role.Id })" class="btn-mvc">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+
+

@@ -1,10 +1,10 @@
-﻿$(function () {
+﻿var enterKeypress = $.Event("keypress", { which: 13 });
+$(function () {
     $('.tagstextarea').tagsInput({
-        'interactive': true,
-        'defaultText': 'add a tag',
+        'autocomplete_url': app_base + 'tag/autocompletetags',
         'removeWithBackspace': true,
         'minChars': 2,
-        'maxChars': 20,
+        'maxChars': 25,
         onAddTag: function (value) {
             if (hasWhiteSpace(value)) {
                 var tag = value;
@@ -19,7 +19,15 @@
             }
         }
     });
+
+    addFocusOutToTags();
 });
 function hasWhiteSpace(s) {
     return s.indexOf(' ') >= 0;
 }
+
+var addFocusOutToTags = function() {
+    $("#Tags_tag").focusout(function () {
+        $(this).trigger(enterKeypress);
+    });
+};

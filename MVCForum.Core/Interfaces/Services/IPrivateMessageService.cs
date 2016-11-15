@@ -9,14 +9,19 @@ namespace MVCForum.Domain.Interfaces.Services
         PrivateMessage SanitizeMessage(PrivateMessage privateMessage);
         PrivateMessage Add(PrivateMessage message);
         PrivateMessage Get(Guid id);
-        void Save(PrivateMessage id);
-        IPagedList<PrivateMessage> GetPagedSentMessagesByUser(int pageIndex, int pageSize, MembershipUser user);
-        IPagedList<PrivateMessage> GetPagedReceivedMessagesByUser(int pageIndex, int pageSize, MembershipUser user);
-        PrivateMessage GetLastSentPrivateMessage(Guid Id);
-        PrivateMessage GetMatchingSentPrivateMessage(string title, DateTime date, Guid senderId, Guid receiverId);
-        IList<PrivateMessage> GetAllSentByUser(Guid Id);
+        IPagedList<PrivateMessageListItem> GetUsersPrivateMessages(int pageIndex, int pageSize, MembershipUser user);
+        IPagedList<PrivateMessage> GetUsersPrivateMessages(int pageIndex, int pageSize, MembershipUser toUser, MembershipUser fromUser);
+        PrivateMessage GetLastSentPrivateMessage(Guid id);
+        PrivateMessage GetMatchingSentPrivateMessage(DateTime date, Guid senderId, Guid receiverId);
+        IList<PrivateMessage> GetAllSentByUser(Guid id);
+        /// <summary>
+        /// Get a list of private messages older than X days
+        /// </summary>
+        /// <param name="days">Amount of days to go back</param>
+        /// <returns></returns>
+        IList<PrivateMessage> GetPrivateMessagesOlderThan(int days);
         int NewPrivateMessageCount(Guid userId);
-        IList<PrivateMessage> GetAllReceivedByUser(Guid Id);
+        IList<PrivateMessage> GetAllReceivedByUser(Guid id);
         IList<PrivateMessage> GetAllByUserToAnotherUser(Guid senderId, Guid receiverId);
         void DeleteMessage(PrivateMessage message);
     }

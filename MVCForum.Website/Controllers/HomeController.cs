@@ -1,40 +1,35 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using MVCForum.Domain.Constants;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.DomainModel.Activity;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Domain.Interfaces.UnitOfWork;
-using MVCForum.Website.Application;
-using MVCForum.Website.ViewModels;
-using RssItem = MVCForum.Domain.DomainModel.RssItem;
-
-namespace MVCForum.Website.Controllers
+﻿namespace MVCForum.Website.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web.Mvc;
+    using Domain.Constants;
+    using Domain.DomainModel;
+    using Domain.DomainModel.Activity;
+    using Domain.DomainModel.Enums;
+    using Domain.Interfaces.Services;
+    using Domain.Interfaces.UnitOfWork;
+    using Application;
+    using ViewModels;
+    using RssItem = Domain.DomainModel.RssItem;
+
     public partial class HomeController : BaseController
     {
         private readonly ITopicService _topicService;
         private readonly ICategoryService _categoryService;
         private readonly IActivityService _activityService;
 
-        private MembershipUser LoggedOnUser;
-        private MembershipRole UsersRole;
-
         public HomeController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager, IActivityService activityService, IMembershipService membershipService,
             ITopicService topicService, ILocalizationService localizationService, IRoleService roleService,
-            ISettingsService settingsService, ICategoryService categoryService)
-            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService)
+            ISettingsService settingsService, ICategoryService categoryService, ICacheService cacheService)
+            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService, cacheService)
         {
             _topicService = topicService;
             _categoryService = categoryService;
             _activityService = activityService;
-
-            LoggedOnUser = UserIsAuthenticated ? MembershipService.GetUser(Username) : null;
-            UsersRole = LoggedOnUser == null ? RoleService.GetRole(AppConstants.GuestRoleName) : LoggedOnUser.Roles.FirstOrDefault();
         }
 
-        //[OutputCache(Duration = 10, VaryByParam = "p")]
         public ActionResult Index()
         {
             return View();
@@ -45,40 +40,54 @@ namespace MVCForum.Website.Controllers
             return View();
         }
 
-        [ChildActionOnly]
-        public ActionResult LatestTopics(int? p)
+        public ActionResult Following()
+        {
+
+            return View();
+        }
+
+        public ActionResult PostedIn()
+        {
+            return View();
+        }
+
+        public ActionResult TermsAndConditions()
         {
             using (UnitOfWorkManager.NewUnitOfWork())
             {
-                // Set the page index
-                var pageIndex = p ?? 1;
-
-                // Get the topics
-                var topics = _topicService.GetRecentTopics(pageIndex,
-                                                           SettingsService.GetSettings().TopicsPerPage,
-                                                           AppConstants.ActiveTopicsListSize);
-
-                // Get all the categories for this topic collection
-                var categories = topics.Select(x => x.Category).Distinct();
-
-                // create the view model
-                var viewModel = new ActiveTopicsViewModel
+                var settings = SettingsService.GetSettings();
+                var viewModel = new TermsAndConditionsViewModel
                 {
-                    Topics = topics,
-                    AllPermissionSets = new Dictionary<Category, PermissionSet>(),
-                    PageIndex = pageIndex,
-                    TotalCount = topics.TotalCount,
-                    User = LoggedOnUser
+                    Agree = false,
+                    TermsAndConditions = settings.TermsAndConditions
                 };
-
-                // loop through the categories and get the permissions
-                foreach (var category in categories)
-                {
-                    var permissionSet = RoleService.GetPermissions(category, UsersRole);
-                    viewModel.AllPermissionSets.Add(category, permissionSet);
-                }
-                return PartialView(viewModel);
+                return View(viewModel);
             }
+        }
+
+        [HttpPost]
+        public ActionResult TermsAndConditions(TermsAndConditionsViewModel viewmodel)
+        {
+            using (var unitOfWork = UnitOfWorkManager.NewUnitOfWork())
+            {
+                if (ModelState.IsValid)
+                {
+                    var user = MembershipService.GetUser(LoggedOnReadOnlyUser.Id);
+                    user.HasAgreedToTermsAndConditions = viewmodel.Agree;
+                    try
+                    {
+                        unitOfWork.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        unitOfWork.Rollback();
+                        LoggingService.Error(ex);
+                    }
+                    return RedirectToAction("Index");
+                }
+            }
+
+            return View(viewmodel);
         }
 
         public ActionResult Activity(int? p)
@@ -103,16 +112,20 @@ namespace MVCForum.Website.Controllers
             }
         }
 
-        [OutputCache(Duration = AppConstants.DefaultCacheLengthInSeconds)]
+        [OutputCache(Duration = (int)CacheTimes.TwoHours)]
         public ActionResult LatestRss()
         {
             using (UnitOfWorkManager.NewUnitOfWork())
             {
+                // Allowed Categories for a guest - As that's all we want latest RSS to show
+                var guestRole = RoleService.GetRole(AppConstants.GuestRoleName);
+                var allowedCategories = _categoryService.GetAllowedCategories(guestRole);
+
                 // get an rss lit ready
                 var rssTopics = new List<RssItem>();
 
                 // Get the latest topics
-                var topics = _topicService.GetRecentRssTopics(AppConstants.ActiveTopicsListSize);
+                var topics = _topicService.GetRecentRssTopics(50, allowedCategories);
 
                 // Get all the categories for this topic collection
                 var categories = topics.Select(x => x.Category).Distinct();
@@ -134,7 +147,7 @@ namespace MVCForum.Website.Controllers
                     var permission = permissions[topic.Category];
 
                     // Add only topics user has permission to
-                    if (!permission[AppConstants.PermissionDenyAccess].IsTicked)
+                    if (!permission[SiteConstants.Instance.PermissionDenyAccess].IsTicked)
                     {
                         if (topic.Posts.Any())
                         {
@@ -149,7 +162,7 @@ namespace MVCForum.Website.Controllers
             }
         }
 
-        [OutputCache(Duration = AppConstants.DefaultCacheLengthInSeconds)]
+        [OutputCache(Duration = (int)CacheTimes.TwoHours)]
         public ActionResult ActivityRss()
         {
             using (UnitOfWorkManager.NewUnitOfWork())
@@ -157,7 +170,7 @@ namespace MVCForum.Website.Controllers
                 // get an rss lit ready
                 var rssActivities = new List<RssItem>();
 
-                var activities = _activityService.GetAll(20).OrderByDescending(x => x.ActivityMapped.Timestamp);
+                var activities = _activityService.GetAll(50).OrderByDescending(x => x.ActivityMapped.Timestamp);
 
                 var activityLink = Url.Action("Activity");
 
@@ -168,13 +181,13 @@ namespace MVCForum.Website.Controllers
                     {
                         var badgeActivity = activity as BadgeActivity;
                         rssActivities.Add(new RssItem
-                            {
-                                Description = badgeActivity.Badge.Description,
-                                Title = string.Concat(badgeActivity.User.UserName, " ", LocalizationService.GetResourceString("Activity.UserAwardedBadge"), " ", badgeActivity.Badge.DisplayName, " ", LocalizationService.GetResourceString("Activity.Badge")),
-                                PublishedDate = badgeActivity.ActivityMapped.Timestamp,
-                                RssImage = AppHelpers.ReturnBadgeUrl(badgeActivity.Badge.Image),
-                                Link = activityLink
-                            });
+                        {
+                            Description = badgeActivity.Badge.Description,
+                            Title = string.Concat(badgeActivity.User.UserName, " ", LocalizationService.GetResourceString("Activity.UserAwardedBadge"), " ", badgeActivity.Badge.DisplayName, " ", LocalizationService.GetResourceString("Activity.Badge")),
+                            PublishedDate = badgeActivity.ActivityMapped.Timestamp,
+                            RssImage = AppHelpers.ReturnBadgeUrl(badgeActivity.Badge.Image),
+                            Link = activityLink
+                        });
                     }
                     else if (activity is MemberJoinedActivity)
                     {
@@ -184,7 +197,7 @@ namespace MVCForum.Website.Controllers
                             Description = string.Empty,
                             Title = LocalizationService.GetResourceString("Activity.UserJoined"),
                             PublishedDate = memberJoinedActivity.ActivityMapped.Timestamp,
-                            RssImage = memberJoinedActivity.User.MemberImage(AppConstants.GravatarPostSize),
+                            RssImage = memberJoinedActivity.User.MemberImage(SiteConstants.Instance.GravatarPostSize),
                             Link = activityLink
                         });
                     }
@@ -196,7 +209,7 @@ namespace MVCForum.Website.Controllers
                             Description = string.Empty,
                             Title = LocalizationService.GetResourceString("Activity.ProfileUpdated"),
                             PublishedDate = profileUpdatedActivity.ActivityMapped.Timestamp,
-                            RssImage = profileUpdatedActivity.User.MemberImage(AppConstants.GravatarPostSize),
+                            RssImage = profileUpdatedActivity.User.MemberImage(SiteConstants.Instance.GravatarPostSize),
                             Link = activityLink
                         });
                     }
@@ -207,78 +220,49 @@ namespace MVCForum.Website.Controllers
             }
         }
 
-        [OutputCache(Duration = AppConstants.DefaultCacheLengthInSeconds)]
+        [OutputCache(Duration = (int)CacheTimes.TwoHours)]
         public ActionResult GoogleSitemap()
         {
             using (UnitOfWorkManager.NewUnitOfWork())
             {
-                // Get all categoryes
-                var allCategories = _categoryService.GetAll().ToList();
+                // Allowed Categories for a guest
+                var guestRole = RoleService.GetRole(AppConstants.GuestRoleName);
+                var allowedCategories = _categoryService.GetAllowedCategories(guestRole);
 
-                // Get all topics
-                var allTopics = _topicService.GetAll();
+                // Get all topics that a guest has access to
+                var allTopics = _topicService.GetAll(allowedCategories);
 
+                // Sitemap holder
+                var sitemap = new List<SitemapEntry>();
+
+                // ##### TOPICS
+                foreach (var topic in allTopics.Where(x => x.LastPost != null))
+                {
+                    var sitemapEntry = new SitemapEntry
+                    {
+                        Name = topic.Name,
+                        Url = topic.NiceUrl,
+                        LastUpdated = topic.LastPost.DateEdited,
+                        ChangeFrequency = SiteMapChangeFreqency.daily,
+                        Priority = "0.6"
+                    };
+                    sitemap.Add(sitemapEntry);
+                }
+
+                return new GoogleSitemapResult(sitemap);
+            }
+        }
+
+        [OutputCache(Duration = (int)CacheTimes.TwoHours)]
+        public ActionResult GoogleMemberSitemap()
+        {
+            using (UnitOfWorkManager.NewUnitOfWork())
+            {
                 // get all members profiles
                 var members = MembershipService.GetAll();
 
                 // Sitemap holder
                 var sitemap = new List<SitemapEntry>();
-
-                // create permissions
-                var permissions = new Dictionary<Category, PermissionSet>();
-
-                // loop through the categories and get the permissions
-                foreach (var category in allCategories)
-                {
-                    var permissionSet = RoleService.GetPermissions(category, UsersRole);
-                    permissions.Add(category, permissionSet);
-                }
-
-                // ##### TOPICS
-                // Now loop through the topics and remove any that user does not have permission for
-                foreach (var topic in allTopics)
-                {
-                    // Get the permissions for this topic via its parent category
-                    var permission = permissions[topic.Category];
-
-                    // Add only topics user has permission to
-                    if (!permission[AppConstants.PermissionDenyAccess].IsTicked)
-                    {
-                        if (topic.Posts.Any())
-                        {
-                            var firstOrDefault = topic.Posts.FirstOrDefault(x => x.IsTopicStarter);
-                            if (firstOrDefault != null)
-                            {
-                                var sitemapEntry = new SitemapEntry
-                                {
-                                    Name = topic.Name,
-                                    Url = topic.NiceUrl,
-                                    LastUpdated = topic.LastPost.DateEdited
-                                };
-                                sitemap.Add(sitemapEntry);
-                            }
-                        }
-                    }
-                }
-
-                // #### CATEGORIES
-                foreach (var category in allCategories)
-                {
-                    // Get the permissions for this topic via its parent category
-                    var permission = permissions[category];
-
-                    // Add only topics user has permission to
-                    if (!permission[AppConstants.PermissionDenyAccess].IsTicked)
-                    {
-                        var sitemapEntry = new SitemapEntry
-                        {
-                            Name = category.Name,
-                            Url = category.NiceUrl,
-                            LastUpdated = category.DateCreated
-                        };
-                        sitemap.Add(sitemapEntry);
-                    }
-                }
 
                 // #### MEMBERS
                 foreach (var member in members)
@@ -287,11 +271,43 @@ namespace MVCForum.Website.Controllers
                     {
                         Name = member.UserName,
                         Url = member.NiceUrl,
-                        LastUpdated = member.CreateDate
+                        LastUpdated = member.CreateDate,
+                        ChangeFrequency = SiteMapChangeFreqency.weekly,
+                        Priority = "0.4"
                     };
-                    sitemap.Add(sitemapEntry);       
+                    sitemap.Add(sitemapEntry);
                 }
 
+                return new GoogleSitemapResult(sitemap);
+            }
+        }
+
+        [OutputCache(Duration = (int)CacheTimes.TwoHours)]
+        public ActionResult GoogleCategorySitemap()
+        {
+            using (UnitOfWorkManager.NewUnitOfWork())
+            {
+                // Allowed Categories for a guest
+                var guestRole = RoleService.GetRole(AppConstants.GuestRoleName);
+                var allowedCategories = _categoryService.GetAllowedCategories(guestRole);
+
+                // Sitemap holder
+                var sitemap = new List<SitemapEntry>();
+
+                // #### CATEGORIES
+                foreach (var category in allowedCategories)
+                {
+                    // Get last post 
+                    var topic = category.Topics.OrderByDescending(x => x.LastPost.DateEdited).FirstOrDefault();
+                    var sitemapEntry = new SitemapEntry
+                    {
+                        Name = category.Name,
+                        Url = category.NiceUrl,
+                        LastUpdated = topic?.LastPost.DateEdited ?? category.DateCreated,
+                        ChangeFrequency = SiteMapChangeFreqency.monthly
+                    };
+                    sitemap.Add(sitemapEntry);
+                }
 
                 return new GoogleSitemapResult(sitemap);
             }

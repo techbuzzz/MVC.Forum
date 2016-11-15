@@ -1,29 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.DomainModel.Attributes;
-using MVCForum.Domain.Events;
-using MVCForum.Domain.Interfaces.API;
-using MVCForum.Domain.Interfaces.Badges;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Utilities;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using Domain.Constants;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Domain.DomainModel;
+    using Domain.DomainModel.Activity;
+    using Domain.DomainModel.Attributes;
+    using Domain.Events;
+    using Domain.Interfaces;
+    using Domain.Interfaces.Badges;
+    using Domain.Interfaces.Services;
+    using Data.Context;
+    using Utilities;
+
     public partial class BadgeService : IBadgeService
     {
         private readonly ILocalizationService _localizationService;
+        private readonly IMembershipUserPointsService _membershipUserPointsService;
+        private readonly ILoggingService _loggingService;
+        private readonly IReflectionService _reflectionService;
+        private readonly MVCForumContext _context;
+        private readonly ICacheService _cacheService;
 
         public const int BadgeCheckIntervalMinutes = 10;
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="loggingService"> </param>
+        /// <param name="localizationService"> </param>
+        /// <param name="membershipUserPointsService"></param>
+        /// <param name="reflectionService"></param>
+        /// <param name="context"></param>
+        /// <param name="cacheService"></param>
+        public BadgeService(ILoggingService loggingService, ILocalizationService localizationService,
+            IMembershipUserPointsService membershipUserPointsService, IReflectionService reflectionService, IMVCForumContext context, ICacheService cacheService)
+        {
+            _loggingService = loggingService;
+            _localizationService = localizationService;
+            _membershipUserPointsService = membershipUserPointsService;
+            _reflectionService = reflectionService;
+            _cacheService = cacheService;
+            _context = context as MVCForumContext;
+        }
+
+        #region Private static methods
+
+        /// <summary>
         /// The discovered badge class .Net types, indexed by MVCForum badge type
         /// </summary>
-        private static Dictionary<BadgeType, List<BadgeMapping>> _badges;                                
+        private static Dictionary<BadgeType, List<BadgeMapping>> _badges;
 
         /// <summary>
         /// Utility class to correlate badged classes with badge database records
@@ -46,31 +74,6 @@ namespace MVCForum.Services
             public IBadge BadgeClassInstance { get; set; }
         }
 
-        private readonly IBadgeRepository _badgeRepository;
-        private readonly IMVCForumAPI _mvcForumAPI;
-        private readonly ILoggingService _loggingService;
-        private readonly IActivityService _activityService;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="badgeRepository"> </param>
-        /// <param name="api"></param>
-        /// <param name="loggingService"> </param>
-        /// <param name="localizationService"> </param>
-        /// <param name="activityService"> </param>
-        public BadgeService(IBadgeRepository badgeRepository, IMVCForumAPI api, 
-            ILoggingService loggingService, ILocalizationService localizationService, IActivityService activityService)
-        {
-            _badgeRepository = badgeRepository;
-            _mvcForumAPI = api;
-            _loggingService = loggingService;
-            _localizationService = localizationService;
-            _activityService = activityService;
-        }
-
-        #region Private static methods
-
         /// <summary>
         /// Create a database badge from a badge class
         /// </summary>
@@ -85,7 +88,7 @@ namespace MVCForum.Services
             var imageAtt = GetAttribute<ImageAttribute>(classType);
             var displayNameAtt = GetAttribute<DisplayNameAttribute>(classType);
             var awardsPointsAtt = GetAttribute<AwardsPointsAttribute>(classType);
-            
+
             var badge = new Badge
             {
                 Id = idAtt.Id,
@@ -95,21 +98,11 @@ namespace MVCForum.Services
                 DisplayName = displayNameAtt.DisplayName,
                 Users = new List<MembershipUser>(),
                 Type = badgeType.ToString().TrimEnd(),
-                AwardsPoints = awardsPointsAtt != null ? awardsPointsAtt.Points : 0
+                AwardsPoints = awardsPointsAtt?.Points ?? 0
             };
             return badge;
         }
 
-        /// <summary>
-        /// Callback used when comparing objects to see if they implement an interface
-        /// </summary>
-        /// <param name="typeObj"></param>
-        /// <param name="criteriaObj"></param>
-        /// <returns></returns>
-        private static bool InterfaceFilter(Type typeObj, Object criteriaObj)
-        {
-            return typeObj.ToString() == criteriaObj.ToString();
-        }
 
         /// <summary>
         /// Get the specified attribute off a badge class
@@ -124,7 +117,7 @@ namespace MVCForum.Services
                 if (attribute is T)
                 {
                     return attribute as T;
-                }              
+                }
             }
 
             throw new BadgeAttributeNotFoundException();
@@ -161,29 +154,33 @@ namespace MVCForum.Services
         /// <returns></returns>
         private bool BadgeCanBeAwarded(MembershipUser user, BadgeMapping badgeMapping)
         {
-            if (user.Badges == null)
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "BadgeCanBeAwarded-", user.Id, "-", badgeMapping.GetHashCode());
+            return _cacheService.CachePerRequest(cacheKey, () =>
             {
-                _loggingService.Error(string.Format(_localizationService.GetResourceString("Badges.UnableToAward"), user.UserName));
-                return false;
-            }
+                if (user.Badges == null)
+                {
+                    _loggingService.Error(string.Format(_localizationService.GetResourceString("Badges.UnableToAward"), user.UserName));
+                    return false;
+                }
 
-            var badgeCanBeAwarded = true;
+                var badgeCanBeAwarded = true;
 
-            if (badgeMapping.BadgeClass == null || badgeMapping.DbBadge == null)
-            {
-                badgeCanBeAwarded = false;
-            }
-            else
-            {
-                var userHasBadge = user.Badges.Any(userBadge => userBadge.Name == badgeMapping.DbBadge.Name);
-
-                if (userHasBadge)
+                if (badgeMapping.BadgeClass == null || badgeMapping.DbBadge == null)
                 {
                     badgeCanBeAwarded = false;
                 }
-            }           
+                else
+                {
+                    var userHasBadge = user.Badges.Any(userBadge => userBadge.Name == badgeMapping.DbBadge.Name);
 
-            return badgeCanBeAwarded;
+                    if (userHasBadge)
+                    {
+                        badgeCanBeAwarded = false;
+                    }
+                }
+
+                return badgeCanBeAwarded;
+            });
         }
 
         #endregion
@@ -196,47 +193,51 @@ namespace MVCForum.Services
         /// <returns></returns>
         private bool RecentlyProcessed(BadgeType badgeType, MembershipUser user)
         {
-            var recentlyProcessed = false;
-            var now = DateTime.UtcNow;
-
-            BadgeTypeTimeLastChecked timeBadgeLastChecked = null;
-
-            // Go through all the badge-check time records for this user
-            foreach (var nextBadgeTypeCheckedForUser in user.BadgeTypesTimeLastChecked)
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "RecentlyProcessed-", user.Id, "-", badgeType);
+            return _cacheService.CachePerRequest(cacheKey, () =>
             {
-                var previouslyCheckedBadgeType = FromString(nextBadgeTypeCheckedForUser.BadgeType);
+                var recentlyProcessed = false;
+                var now = DateTime.UtcNow;
 
-                if (previouslyCheckedBadgeType == null || previouslyCheckedBadgeType != badgeType)
+                BadgeTypeTimeLastChecked timeBadgeLastChecked = null;
+
+                // Go through all the badge-check time records for this user
+                foreach (var nextBadgeTypeCheckedForUser in user.BadgeTypesTimeLastChecked)
                 {
-                    continue;
+                    var previouslyCheckedBadgeType = FromString(nextBadgeTypeCheckedForUser.BadgeType);
+
+                    if (previouslyCheckedBadgeType == null || previouslyCheckedBadgeType != badgeType)
+                    {
+                        continue;
+                    }
+
+                    // Block the badge check if not enough time has elapsed since last check
+                    if ((now - nextBadgeTypeCheckedForUser.TimeLastChecked).TotalMinutes < BadgeCheckIntervalMinutes)
+                    {
+                        recentlyProcessed = true;
+                    }
+
+                    timeBadgeLastChecked = nextBadgeTypeCheckedForUser;
+                    timeBadgeLastChecked.TimeLastChecked = now;
+
+                    break;
                 }
 
-                // Block the badge check if not enough time has elapsed since last check
-                if ((now - nextBadgeTypeCheckedForUser.TimeLastChecked).TotalMinutes < BadgeCheckIntervalMinutes)
+                // If this badge type never checked for this user, add it
+                if (timeBadgeLastChecked == null)
                 {
-                    recentlyProcessed = true;
+                    timeBadgeLastChecked = new BadgeTypeTimeLastChecked
+                    {
+                        BadgeType = badgeType.ToString(),
+                        TimeLastChecked = now,
+                        User = user
+                    };
+
+                    user.BadgeTypesTimeLastChecked.Add(timeBadgeLastChecked);
                 }
 
-                timeBadgeLastChecked = nextBadgeTypeCheckedForUser;
-                timeBadgeLastChecked.TimeLastChecked = now;
-
-                break;
-            }
-
-            // If this badge type never checked for this user, add it
-            if (timeBadgeLastChecked == null)
-            {
-                timeBadgeLastChecked = new BadgeTypeTimeLastChecked
-                {
-                    BadgeType = badgeType.ToString(),
-                    TimeLastChecked = now,
-                    User = user
-                };
-
-                user.BadgeTypesTimeLastChecked.Add(timeBadgeLastChecked);
-            }
-
-            return recentlyProcessed;
+                return recentlyProcessed;
+            });
         }
 
         /// <summary>
@@ -261,41 +262,17 @@ namespace MVCForum.Services
         /// <summary>
         /// Iterates over the runtime folder looking for classes that implement the badge interface
         /// </summary>
-        private void GetBadgesByReflection()
+        private void GetBadgesByReflection(IEnumerable<Assembly> assemblies)
         {
             _badges = new Dictionary<BadgeType, List<BadgeMapping>>();
 
-            var interfaceFilter = new TypeFilter(InterfaceFilter);
-
-            var path = AppDomain.CurrentDomain.RelativeSearchPath;
+            var interfaceFilter = new TypeFilter(_reflectionService.InterfaceFilter);
 
             // Get all the dlls
-            var di = new DirectoryInfo(path);
-            foreach (var file in di.GetFiles("*.dll"))
+            foreach (var nextAssembly in assemblies)
             {
                 try
                 {
-                    if (file.Name == "EcmaScript.NET.dll")
-                    {
-                        continue;
-                    }
-
-                    Assembly nextAssembly;
-                    try
-                    {
-                        nextAssembly = Assembly.LoadFrom(file.FullName);
-                    }
-                    catch (BadImageFormatException)
-                    {
-                        // Not an assembly ignore
-                        continue;
-                    }
-
-                    if (nextAssembly.FullName.StartsWith("System") || nextAssembly.FullName.StartsWith("Microsoft") || nextAssembly.FullName.StartsWith("DotNetOpenAuth"))
-                    {
-                        // Skip microsoft and dotnetauth assemblies
-                        continue;
-                    }
 
                     foreach (var type in nextAssembly.GetTypes())
                     {
@@ -311,7 +288,7 @@ namespace MVCForum.Services
                             if (!Badge.BadgeClassNames.ContainsKey(badgeType))
                             {
                                 throw new ApplicationException(
-                                    string.Format(_localizationService.GetResourceString("Badge.BadegEnumNoClass"), badgeType.ToString()));
+                                    string.Format(_localizationService.GetResourceString("Badge.BadegEnumNoClass"), badgeType));
                             }
 
                             var interfaceType = Badge.BadgeClassNames[badgeType];
@@ -332,16 +309,14 @@ namespace MVCForum.Services
                             {
                                 _badges.Add(badgeType, new List<BadgeMapping>());
                             }
-                            _badges[badgeType].Add(new BadgeMapping {BadgeClass = type, DbBadge = dbBadge});
+                            _badges[badgeType].Add(new BadgeMapping { BadgeClass = type, DbBadge = dbBadge });
                         }
                     }
                 }
                 catch (ReflectionTypeLoadException rtle)
                 {
                     var msg =
-                        string.Format(
-                            "Unable to load assembly. Probably not a badge assembly. In file named '{0}', loader exception was: '{1}':'{2}'.",
-                            file.Name, rtle.LoaderExceptions[0].GetType(), rtle.LoaderExceptions[0].Message);
+                        $"Unable to load assembly. Probably not an event assembly, loader exception was: '{rtle.LoaderExceptions[0].GetType()}':'{rtle.LoaderExceptions[0].Message}'.";
                     _loggingService.Error(msg);
                 }
                 catch (Exception ex)
@@ -356,11 +331,11 @@ namespace MVCForum.Services
         /// Bring the database into line with the badge classes found at runtime
         /// </summary>
         /// <returns>Set of valid badge classes to use when assigning badges</returns>
-        public void SyncBadges()
+        public void SyncBadges(List<Assembly> assemblies)
         {
             try
             {
-                GetBadgesByReflection();
+                GetBadgesByReflection(assemblies);
 
                 // Turn the badge classes into a set of domain objects
                 var badgesFromClasses = new Dictionary<Guid, Badge>();
@@ -378,7 +353,7 @@ namespace MVCForum.Services
                 var badgesToDelete = new List<Badge>();
                 var badgesToInsert = new List<Badge>();
 
-                var dbBadges = _badgeRepository.GetAll().ToList();
+                var dbBadges = GetAll().ToList();
 
                 // Find badges to delete - ie in database not in classes     
                 badgesToDelete.AddRange(dbBadges);
@@ -432,17 +407,18 @@ namespace MVCForum.Services
 
                 foreach (var badge in badgesToDelete)
                 {
-                    _badgeRepository.Delete(badge);
+                    //TODO - Remove points associated with a deleted badge?
+                    Delete(badge);
                 }
 
                 foreach (var badge in badgesToInsert)
                 {
-                    _badgeRepository.Add(badge);
+                    Add(badge);
                 }
             }
             catch (Exception ex)
             {
-               _loggingService.Error(ex);
+                _loggingService.Error(ex);
             }
         }
 
@@ -456,7 +432,7 @@ namespace MVCForum.Services
         {
             var databaseUpdateNeeded = false;
 
-            var e = new BadgeEventArgs {User = user, BadgeType = badgeType, Api = _mvcForumAPI};
+            var e = new BadgeEventArgs { User = user, BadgeType = badgeType };
             EventManager.Instance.FireBeforeBadgeAwarded(this, e);
 
             if (!e.Cancel)
@@ -479,30 +455,44 @@ namespace MVCForum.Services
                             // Instantiate the badge and execute the rule
                             var badge = GetInstance<IBadge>(badgeMapping);
 
-                            // Award badge?
-                            if (badge != null && badge.Rule(user, _mvcForumAPI))
+                            if (badge != null)
                             {
-                                // Re-fetch the badge otherwise system will try and create new badges!
-                                var dbBadge = _badgeRepository.Get(badgeMapping.DbBadge.Id);
-                                if (dbBadge.AwardsPoints != null && dbBadge.AwardsPoints > 0)
-                                {
-                                    var points = new MembershipUserPoints
-                                    {
-                                        DateAdded = DateTime.UtcNow,
-                                        Points = (int)dbBadge.AwardsPoints
-                                    };
-                                    user.Points.Add(points);
-                                }
-                                user.Badges.Add(dbBadge);
-                                _activityService.BadgeAwarded(badgeMapping.DbBadge, user, DateTime.UtcNow);
+                                var dbBadge = Get(badgeMapping.DbBadge.Id);
 
-                                EventManager.Instance.FireAfterBadgeAwarded(this,
-                                                                            new BadgeEventArgs
+                                // Award badge?
+                                if (badge.Rule(user))
+                                {
+                                    // Re-fetch the badge otherwise system will try and create new badges!                                
+                                    if (dbBadge.AwardsPoints != null && dbBadge.AwardsPoints > 0)
+                                    {
+                                        var points = new MembershipUserPoints
+                                        {
+                                            Points = (int)dbBadge.AwardsPoints,
+                                            PointsFor = PointsFor.Badge,
+                                            PointsForId = dbBadge.Id,
+                                            User = user
+                                        };
+                                        _membershipUserPointsService.Add(points);
+                                    }
+                                    user.Badges.Add(dbBadge);
+                                    //_activityService.BadgeAwarded(badgeMapping.DbBadge, user, DateTime.UtcNow);
+                                    var badgeActivity = BadgeActivity.GenerateMappedRecord(badgeMapping.DbBadge, user, DateTime.UtcNow);
+                                    _context.Activity.Add(badgeActivity);
+                                    EventManager.Instance.FireAfterBadgeAwarded(this,
+                                                                                new BadgeEventArgs
                                                                                 {
                                                                                     User = user,
-                                                                                    BadgeType = badgeType,
-                                                                                    Api = _mvcForumAPI
+                                                                                    BadgeType = badgeType
                                                                                 });
+                                }
+                                //else
+                                //{
+                                //    // If we get here the user should not have the badge
+                                //    // Remove the badge if the user no longer has the criteria to be awarded it
+                                //    // and also remove any points associated with it.
+                                //    user.Badges.Remove(dbBadge);
+                                //    _membershipUserPointsService.Delete(user, PointsFor.Badge, dbBadge.Id);
+                                //}
                             }
                         }
                     }
@@ -519,27 +509,83 @@ namespace MVCForum.Services
         /// <returns></returns>
         public PagedList<Badge> GetPagedGroupedBadges(int pageIndex, int pageSize)
         {
-            return _badgeRepository.GetPagedGroupedBadges(pageIndex, pageSize);
+
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "GetPagedGroupedBadges-", pageIndex, "-", pageSize);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var totalCount = _context.Badge.Count();
+                // Get the topics using an efficient
+                var results = _context.Badge
+                                    .OrderByDescending(x => x.Name)
+                                    .Skip((pageIndex - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+
+
+                // Return a paged list
+                return new PagedList<Badge>(results, pageIndex, pageSize, totalCount);
+            });
         }
 
         public PagedList<Badge> SearchPagedGroupedTags(string search, int pageIndex, int pageSize)
         {
-            return _badgeRepository.SearchPagedGroupedBadges(StringUtils.SafePlainText(search), pageIndex, pageSize);
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "SearchPagedGroupedTags-", search, "-", pageIndex, "-", pageSize);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                search = StringUtils.SafePlainText(search);
+                var totalCount = _context.Badge.Count(x => x.Name.ToUpper().Contains(search.ToUpper()));
+                // Get the topics using an efficient
+                var results = _context.Badge
+                                    .Where(x => x.Name.ToUpper().Contains(search.ToUpper()))
+                                    .OrderByDescending(x => x.Name)
+                                    .Skip((pageIndex - 1) * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+
+
+                // Return a paged list
+                return new PagedList<Badge>(results, pageIndex, pageSize, totalCount);
+            });
         }
 
         public IList<Badge> GetallBadges()
         {
-            return _badgeRepository.GetAll().ToList();
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "GetallBadges");
+            return _cacheService.CachePerRequest(cacheKey, () => GetAll().ToList());
         }
 
         public void DeleteTimeLastChecked(BadgeTypeTimeLastChecked badgeTypeTimeLastChecked)
         {
-            _badgeRepository.DeleteTimeLastChecked(badgeTypeTimeLastChecked);
+            _context.BadgeTypeTimeLastChecked.Remove(badgeTypeTimeLastChecked);
+        }
+
+        public Badge GetBadge(string name)
+        {
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "GetBadge-", name);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Badge.FirstOrDefault(x => x.Name == name));
+        }
+
+        public Badge Get(Guid id)
+        {
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "Get-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Badge.FirstOrDefault(badge => badge.Id == id));
+        }
+
+        public IEnumerable<Badge> GetAll()
+        {
+            var cacheKey = string.Concat(CacheKeys.Badge.StartsWith, "GetAll");
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Badge.ToList());
+        }
+
+        public Badge Add(Badge newBadge)
+        {
+            return _context.Badge.Add(newBadge);
         }
 
         public void Delete(Badge badge)
         {
-            _badgeRepository.Delete(badge);
+            badge.Users.Clear();
+            _context.Badge.Remove(badge);
         }
     }
 

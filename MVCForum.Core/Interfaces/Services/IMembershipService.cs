@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MVCForum.Domain.DomainModel;
+using MVCForum.Domain.Interfaces.UnitOfWork;
 
 namespace MVCForum.Domain.Interfaces.Services
 {
@@ -12,17 +13,21 @@ namespace MVCForum.Domain.Interfaces.Services
         PasswordAttemptsExceeded,
         UserLockedOut,
         UserNotApproved,
+        Banned
     }
 
     public partial interface IMembershipService
     {
+        MembershipUser Add(MembershipUser newUser);
         MembershipUser SanitizeUser(MembershipUser membershipUser);
         bool ValidateUser(string userName, string password, int maxInvalidPasswordAttempts);
         LoginAttemptStatus LastLoginStatus { get; }
         string[] GetRolesForUser(string username);
-        MembershipUser GetUser(string username);
-        MembershipUser GetUserByEmail(string email);
+        MembershipUser Get(Guid id);
+        MembershipUser GetUser(string username, bool removeTracking = false);
+        MembershipUser GetUserByEmail(string email, bool removeTracking = false);
         MembershipUser GetUserBySlug(string slug);
+        IList<MembershipUser> GetUserBySlugLike(string slug);
         MembershipUser GetUserByFacebookId(long facebookId);
         MembershipUser GetUserByTwitterId(string twitterId);
         MembershipUser GetUserByGoogleId(string googleId);
@@ -41,13 +46,23 @@ namespace MVCForum.Domain.Interfaces.Services
         PagedList<MembershipUser> SearchMembers(string search, int pageIndex, int pageSize);
         IList<MembershipUser> SearchMembers(string username, int amount);
         IList<MembershipUser> GetActiveMembers();
-        void Save(MembershipUser user);
         void ProfileUpdated(MembershipUser user);
-        bool Delete(MembershipUser user);
+        bool Delete(MembershipUser user, IUnitOfWork unitOfWork);
         IList<MembershipUser> GetLatestUsers(int amountToTake);
         IList<MembershipUser> GetLowestPointUsers(int amountToTake);
         int MemberCount();
         string ToCsv();
         CsvReport FromCsv(List<string> allLines);
+        /// <summary>
+        /// Completed scrubs a users account clean
+        /// Clears everything - Posts, polls, votes, favourites, profile etc...
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="unitOfWork"></param>
+        void ScrubUsers(MembershipUser user, IUnitOfWork unitOfWork);
+
+        bool UpdatePasswordResetToken(MembershipUser user);
+        bool ClearPasswordResetToken(MembershipUser user);
+        bool IsPasswordResetTokenValid(MembershipUser user, string token);
     }
 }

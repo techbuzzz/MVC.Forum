@@ -3,11 +3,23 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using MVCForum.Domain.Constants;
 using MVCForum.Domain.DomainModel;
-using DataAnnotationsExtensions;
 
 namespace MVCForum.Website.Areas.Admin.ViewModels
 {
+
+    public class CustomCodeViewModels
+    {
+        [AllowHtml]
+        [DisplayName("Custom Header Code")]
+        public string CustomHeaderCode { get; set; }
+
+        [AllowHtml]
+        [DisplayName("Custom Footer Code")]
+        public string CustomFooterCode { get; set; }
+    }
+
     public class EditSettingsViewModel
     {
         [HiddenInput]
@@ -21,7 +33,6 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         [DisplayName("Forum Url")]
         [Required]
         [StringLength(200)]
-        [System.ComponentModel.DataAnnotations.Url]
         public string ForumUrl { get; set; }
 
         [DisplayName("Close Forum")]
@@ -41,8 +52,14 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         [DisplayName("Allow Posts To Be Marked As Solution")]
         public bool EnableMarkAsSolution { get; set; }
 
+        [DisplayName("Timeframe in days to wait before a reminder email is sent to topic creator, for all topics that have not been marked as solution - Set to 0 to disable")]
+        public int MarkAsSolutionReminderTimeFrame { get; set; }
+
         [DisplayName("Enable Spam Reporting")]
         public bool EnableSpamReporting { get; set; }
+
+        [DisplayName("Enable Emoticons (Smilies)")]
+        public bool EnableEmoticons { get; set; }
 
         [DisplayName("Allow Members To Report Other Members")]
         public bool EnableMemberReporting { get; set; }
@@ -74,7 +91,7 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         [DisplayName("Private Message Inbox Max Size")]
         public int MaxPrivateMessagesPerMember { get; set; }
 
-        [DisplayName("Private Message Flood Control Time In Minutes")]
+        [DisplayName("Private Message Flood Control - Time In Seconds a user must wait before being allowed to message another user")]
         public int PrivateMessageFloodControl { get; set; }
 
         [DisplayName("Allow Member Signatures")]
@@ -88,7 +105,10 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
 
         [DisplayName("Amount Of Points Before A User Can Vote")]
         public int PointsAllowedToVoteAmount { get; set; }
-        
+
+        [DisplayName("Amount Of Points For Extended Profile")]
+        public int PointsAllowedForExtendedProfile { get; set; }
+
         [DisplayName("Points Added Per New Post")]
         public int PointsAddedPerPost { get; set; }
 
@@ -101,12 +121,12 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         [DisplayName("Points Added For A Solution")]
         public int PointsAddedForSolution { get; set; }
 
-        [Email]
+        [EmailAddress]
         [DisplayName("Admin Email Address")]
         public string AdminEmailAddress { get; set; }
 
-        [Email]
         [DisplayName("Notification Reply Email Address")]
+        [AllowHtml] // We have to put this to allow this type of reply address MVCForum <noreply@mvcforum.com>
         public string NotificationReplyEmail { get; set; }
 
         [DisplayName("SMTP Server")]
@@ -152,8 +172,11 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         [DisplayName("Enter the answer to your Spam question")]
         public string SpamAnswer { get; set; }
 
-        [DisplayName("Enable social logins (Facebook etc...) - You must have correct AppId/Keys too in web.config")]
+        [DisplayName("Enable social logins (Facebook etc...)")]
         public bool EnableSocialLogins { get; set; }
+
+        [DisplayName("Disable Standard Registration")]
+        public bool DisableStandardRegistration { get; set; }
 
         [DisplayName("Suspend the registration (Don't allow any new members to register)")]
         public bool SuspendRegistration { get; set; }
@@ -165,5 +188,16 @@ namespace MVCForum.Website.Areas.Admin.ViewModels
         [DisplayName("Meta Desc")]
         [MaxLength(200)]
         public string MetaDesc { get; set; }
+
+        [DisplayName("Disable Dislike Button - Users can only Like posts")]
+        public bool DisableDislikeButton { get; set; }
+
+        [DisplayName("New Members must agree to the Terms & Conditions below before using the forum")]        
+        public bool AgreeToTermsAndConditions { get; set; }
+
+        [DisplayName("Terms & Conditions of the forum")]
+        [UIHint(AppConstants.EditorType), AllowHtml]
+        [StringLength(6000)]
+        public string TermsAndConditions { get; set; }
     }
 }

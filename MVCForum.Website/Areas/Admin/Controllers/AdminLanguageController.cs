@@ -8,6 +8,7 @@ using MVCForum.Domain.DomainModel;
 using MVCForum.Domain.Interfaces.Services;
 using MVCForum.Domain.Interfaces.UnitOfWork;
 using MVCForum.Utilities;
+using MVCForum.Website.Application;
 using MVCForum.Website.Areas.Admin.ViewModels;
 
 namespace MVCForum.Website.Areas.Admin.Controllers
@@ -56,7 +57,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
             {
                 Message = message,
-                MessageType = GenericMessages.error
+                MessageType = GenericMessages.danger
             };
         }
 
@@ -86,8 +87,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             using (UnitOfWorkManager.NewUnitOfWork())
             {
                 var pageIndex = page ?? 1;
-                var allResources = string.IsNullOrEmpty(search) ? LocalizationService.GetAllResourceKeys(pageIndex, AppConstants.AdminListPageSize) :
-                                                                   LocalizationService.SearchResourceKeys(search, pageIndex, AppConstants.AdminListPageSize);
+                var allResources = string.IsNullOrEmpty(search) ? LocalizationService.GetAllResourceKeys(pageIndex, SiteConstants.Instance.AdminListPageSize) :
+                                                                   LocalizationService.SearchResourceKeys(search, pageIndex, SiteConstants.Instance.AdminListPageSize);
 
                 // Redisplay list of resources
                 var allViewModelResourceKeys = allResources.Select(resource => new LocaleResourceKeyViewModel
@@ -102,7 +103,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                                                 ResourceKeys = allViewModelResourceKeys,
                                                 PageIndex = pageIndex,
                                                 TotalCount = allResources.TotalCount,
-                                                Search = search
+                                                Search = search,
+                                                TotalPages = allResources.TotalPages
                                             };
 
                 return View("ListKeys", resourceListModel);
@@ -141,17 +143,13 @@ namespace MVCForum.Website.Areas.Admin.Controllers
 
                         // Get all the resources or just the ones that match the search
                         var allResources = string.IsNullOrEmpty(search)
-                                               ? LocalizationService.GetAllValues(language.Id, pageIndex,
-                                                                                  AppConstants.AdminListPageSize)
-                                               : searchByKey
-                                                     ? LocalizationService.SearchResourceKeys(language.Id, search,
+                                               ? LocalizationService.GetAllValues(language.Id, pageIndex,SiteConstants.Instance.AdminListPageSize)
+                                               : searchByKey ? LocalizationService.SearchResourceKeys(language.Id, search,
                                                                                               pageIndex,
-                                                                                              AppConstants.
-                                                                                                  AdminListPageSize)
+                                                                                              SiteConstants.Instance.AdminListPageSize)
                                                      : LocalizationService.SearchResourceValues(language.Id, search,
                                                                                                 pageIndex,
-                                                                                                AppConstants.
-                                                                                                    AdminListPageSize);
+                                                                                                SiteConstants.Instance.AdminListPageSize);
 
                         var models = allResources.Select(resource => new LocaleResourceViewModel
                                                                          {
@@ -168,7 +166,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                                                         LocaleResources = models,
                                                         PageIndex = pageIndex,
                                                         TotalCount = allResources.TotalCount,
-                                                        Search = search
+                                                        Search = search,
+                                                        TotalPages = allResources.TotalPages
                                                     };
 
                         return View("ListValues", resourceListModel);
@@ -195,6 +194,11 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         /// </summary>
         /// <returns></returns>
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult Create()
         {
             return View();
         }

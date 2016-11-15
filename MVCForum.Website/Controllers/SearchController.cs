@@ -1,36 +1,31 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using MVCForum.Domain.Constants;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Domain.Interfaces.UnitOfWork;
-using MVCForum.Utilities;
-using MVCForum.Website.ViewModels;
-
-namespace MVCForum.Website.Controllers
+﻿namespace MVCForum.Website.Controllers
 {
+    using System.Linq;
+    using System.Web.Mvc;
+    using Domain.Constants;
+    using Domain.Interfaces.Services;
+    using Domain.Interfaces.UnitOfWork;
+    using ViewModels;
+    using ViewModels.Mapping;
+
     public partial class SearchController : BaseController
     {
         private readonly IPostService _postService;
-        private readonly ITopicService _topicsService;
-        private readonly ILuceneService _luceneService;
+        private readonly ICategoryService _categoryService;
+        private readonly IVoteService _voteService;
+        private readonly IFavouriteService _favouriteService;
 
-        private MembershipUser LoggedOnUser;
-        private MembershipRole UsersRole;
-
-        public SearchController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager, 
-            IMembershipService membershipService, ILocalizationService localizationService, 
-            IRoleService roleService, ISettingsService settingsService, 
-            IPostService postService, ITopicService topicService, ILuceneService luceneService)
-            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService)
+        public SearchController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager,
+            IMembershipService membershipService, ILocalizationService localizationService,
+            IRoleService roleService, ISettingsService settingsService,
+            IPostService postService, IVoteService voteService, IFavouriteService favouriteService, 
+            ICategoryService categoryService, ICacheService cacheService)
+            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService, cacheService)
         {
             _postService = postService;
-            _topicsService = topicService;
-            _luceneService = luceneService;
-
-            LoggedOnUser = UserIsAuthenticated ? MembershipService.GetUser(Username) : null;
-            UsersRole = LoggedOnUser == null ? RoleService.GetRole(AppConstants.GuestRoleName) : LoggedOnUser.Roles.FirstOrDefault();
+            _voteService = voteService;
+            _favouriteService = favouriteService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -40,61 +35,55 @@ namespace MVCForum.Website.Controllers
             {
                 using (UnitOfWorkManager.NewUnitOfWork())
                 {
+                    if (!string.IsNullOrEmpty(term))
+                    {
+                        term = term.Trim();
+                    }
+
+                    // Get the global settings
+                    var settings = SettingsService.GetSettings();
+
+                    // Get allowed categories
+                    var allowedCategories = _categoryService.GetAllowedCategories(UsersRole);
+
+
                     // Set the page index
                     var pageIndex = p ?? 1;
 
-                    // Returns the formatted string to search on
-                    var formattedSearchTerm = StringUtils.ReturnSearchString(term);
+                    // Get all the topics based on the search value
+                    var posts = _postService.SearchPosts(pageIndex,
+                                                         SiteConstants.Instance.SearchListSize,
+                                                         int.MaxValue,
+                                                         term,
+                                                         allowedCategories);
 
-                    // Create an empty viewmodel
+                    // Get all the permissions for these topics
+                    var topicPermissions = ViewModelMapping.GetPermissionsForTopics(posts.Select(x => x.Topic), RoleService, UsersRole);
+
+                    // Get the post Ids
+                    var postIds = posts.Select(x => x.Id).ToList();
+
+                    // Get all votes for these posts
+                    var votes = _voteService.GetVotesByPosts(postIds);
+
+                    // Get all favourites for these posts
+                    var favs = _favouriteService.GetAllPostFavourites(postIds);
+
+                    // Create the post view models
+                    var viewModels = ViewModelMapping.CreatePostViewModels(posts.ToList(), votes, topicPermissions, LoggedOnReadOnlyUser, settings, favs);
+
+                    // create the view model
                     var viewModel = new SearchViewModel
                     {
-                        Topics = new PagedList<Topic>(new List<Topic>(), 1, 20, 0),
-                        AllPermissionSets = new Dictionary<Category, PermissionSet>(),
+                        Posts = viewModels,
                         PageIndex = pageIndex,
-                        TotalCount = 0,
+                        TotalCount = posts.TotalCount,
+                        TotalPages = posts.TotalPages,
                         Term = term
                     };
 
-                    // Get lucene to search
-                    var luceneResults = _luceneService.Search(formattedSearchTerm, pageIndex, SettingsService.GetSettings().TopicsPerPage);
-
-                    // if there are no results from the filter return an empty search view model.
-	                if (string.IsNullOrWhiteSpace(formattedSearchTerm))
-	                {
-                        return View(viewModel);
-	                }
-
-                    //// Get all the topics based on the search value
-                    //var topics = _topicsService.SearchTopics(pageIndex,
-                    //                                     SettingsService.GetSettings().TopicsPerPage,
-                    //                                     AppConstants.ActiveTopicsListSize,
-                    //                                     term);
-
-                    var topics = _topicsService.GetTopicsByCsv(pageIndex, SettingsService.GetSettings().TopicsPerPage, AppConstants.ActiveTopicsListSize, luceneResults.Select(x => x.TopicId).ToList());
-
-                    // Get all the categories for this topic collection
-                    var categories = topics.Select(x => x.Category).Distinct();
-
-                    // create the view model
-                    viewModel = new SearchViewModel
-                    {
-                        Topics = topics,
-                        AllPermissionSets = new Dictionary<Category, PermissionSet>(),
-                        PageIndex = pageIndex,
-                        TotalCount = luceneResults.TotalCount,
-                        Term = formattedSearchTerm
-                    };
-
-                    // loop through the categories and get the permissions
-                    foreach (var category in categories)
-                    {
-                        var permissionSet = RoleService.GetPermissions(category, UsersRole);
-                        viewModel.AllPermissionSets.Add(category, permissionSet);
-                    }
-
                     return View(viewModel);
-                } 
+                }
             }
 
             return RedirectToAction("Index", "Home");

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Web;
 using System.Web.Hosting;
@@ -10,35 +13,14 @@ using MVCForum.Domain.Constants;
 using MVCForum.Domain.DomainModel;
 using MVCForum.Domain.Interfaces.Services;
 using MVCForum.Utilities;
+using MVCForum.Website.Application.StorageProviders;
 
 namespace MVCForum.Website.Application
 {
     public static class AppHelpers
     {
+
         #region Application
-
-        public static string GetCurrentMvcForumVersion()
-        {
-            var version = ConfigUtils.GetAppSetting("MVCForumVersion");
-            return version;
-        }
-
-        public static bool SameVersionNumbers()
-        {
-            var version = HttpContext.Current.Application["Version"].ToString();
-            return GetCurrentMvcForumVersion() == version;
-        }
-
-        public static bool InInstaller()
-        {
-            var url = HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path);
-            if (!string.IsNullOrEmpty(url))
-            {
-                url = url.ToLowerInvariant();
-                return url.Contains(AppConstants.InstallerUrl);
-            }
-            return false;
-        }
 
         /// <summary>
         /// Returns true if the requested resource is one of the typical resources that needn't be processed by the cms engine.
@@ -88,19 +70,6 @@ namespace MVCForum.Website.Application
             return false;
         }
 
-        public static bool IsDbInstalled()
-        {
-            var filePath = Path.Combine(HostingEnvironment.MapPath("~/App_Data/"), AppConstants.SuccessDbFile);
-            //if (!File.Exists(filePath))
-            //{
-            //    using (File.Create(filePath))
-            //    {
-            //        //we use 'using' to close the file after it's created
-            //    }
-            //}
-            return File.Exists(filePath);
-        }
-
         #endregion
 
         #region Themes
@@ -112,7 +81,7 @@ namespace MVCForum.Website.Application
         public static List<string> GetThemeFolders()
         {
             var folders = new List<string>();
-            var themeRootFolder = HttpContext.Current.Server.MapPath(String.Format("~/{0}", AppConstants.ThemeRootFolderName));
+            var themeRootFolder = HostingEnvironment.MapPath($"~/{SiteConstants.Instance.ThemeRootFolderName}");
             if (Directory.Exists(themeRootFolder))
             {
                 folders.AddRange(Directory.GetDirectories(themeRootFolder)
@@ -125,7 +94,7 @@ namespace MVCForum.Website.Application
             }
             return folders;
         }
-   
+
 
         #endregion
 
@@ -204,9 +173,29 @@ namespace MVCForum.Website.Application
 
         #region Urls
 
+        public static bool Ping(string url)
+        {
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.Timeout = 3000;
+                request.AllowAutoRedirect = false; // find out if this site is up and don't follow a redirector
+                request.Method = "HEAD";
+
+                using (var response = request.GetResponse())
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static string CategoryRssUrls(string slug)
         {
-            return String.Format("/{0}/rss/{1}", AppConstants.CategoryUrlIdentifier, slug);
+            return $"/{SiteConstants.Instance.CategoryUrlIdentifier}/rss/{slug}";
         }
 
         #endregion
@@ -218,7 +207,8 @@ namespace MVCForum.Website.Application
             if (!string.IsNullOrEmpty(post))
             {
                 // Convert any BBCode
-                post = StringUtils.ConvertBbCodeToHtml(post, false);
+                //NOTE: Decided to remove BB code
+                //post = StringUtils.ConvertBbCodeToHtml(post, false);
 
                 // If using the PageDown/MarkDown Editor uncomment this line
                 post = StringUtils.ConvertMarkDown(post);
@@ -235,7 +225,7 @@ namespace MVCForum.Website.Application
 
         public static string ReturnBadgeUrl(string badgeFile)
         {
-            return String.Concat("~/content/badges/", badgeFile);
+            return string.Concat("~/content/badges/", badgeFile);
         }
 
         #endregion
@@ -248,7 +238,7 @@ namespace MVCForum.Website.Application
         /// <returns></returns>
         public static string PreviousVersionNo()
         {
-            return ConfigUtils.GetAppSetting("MVCForumVersion");
+            return SiteConstants.Instance.MvcForumVersion;
         }
 
         /// <summary>
@@ -262,7 +252,7 @@ namespace MVCForum.Website.Application
             var version = Assembly.GetExecutingAssembly().GetName().Version;
 
             // Store the value for use in the app
-            return String.Format("{0}.{1}", version.Major, version.Minor);
+            return $"{version.Major}.{version.Minor}";
         }
 
         /// <summary>
@@ -276,7 +266,7 @@ namespace MVCForum.Website.Application
             var version = Assembly.GetExecutingAssembly().GetName().Version;
 
             // Store the value for use in the app
-            return String.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Build, version.Revision);
+            return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
         }
 
         /// <summary>
@@ -301,25 +291,70 @@ namespace MVCForum.Website.Application
 
         #region Files
 
+        public static bool FileIsImage(string file)
+        {
+            var imageFileTypes = new List<string>
+            {
+                ".jpg", ".jpeg",".gif",".bmp",".png"
+            };
+            return imageFileTypes.Any(file.Contains);
+        }
+
+        public static Image GetImageFromExternalUrl(string url)
+        {
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+
+            using (var httpWebReponse = (HttpWebResponse)httpWebRequest.GetResponse())
+            {
+                using (var stream = httpWebReponse.GetResponseStream())
+                {
+                    if (stream != null) return Image.FromStream(stream);
+                }
+            }
+            return null;
+        }
+
         public static string MemberImage(string avatar, string email, Guid userId, int size)
         {
             if (!string.IsNullOrEmpty(avatar))
             {
                 // Has an avatar image
-                return VirtualPathUtility.ToAbsolute(string.Concat(AppConstants.UploadFolderPath, userId, "/", avatar, string.Format("?width={0}&crop=0,0,{0},{0}", size)));
+                var storageProvider = StorageProvider.Current;
+                return storageProvider.BuildFileUrl(userId, "/", avatar, string.Format("?width={0}&crop=0,0,{0},{0}", size));
             }
+
             return StringUtils.GetGravatarImage(email, size);
+        }
+
+        public static string CategoryImage(string image, Guid categoryId, int size)
+        {
+            var sizeFormat = string.Format("?width={0}&crop=0,0,{0},{0}", size);
+            if (!string.IsNullOrEmpty(image))
+            {
+                var storageProvider = StorageProvider.Current;
+                return storageProvider.BuildFileUrl(categoryId, "/", image, sizeFormat);
+            }
+            //TODO - Return default image for category
+            return null;
         }
 
         public static UploadFileResult UploadFile(HttpPostedFileBase file, string uploadFolderPath, ILocalizationService localizationService, bool onlyImages = false)
         {
             var upResult = new UploadFileResult { UploadSuccessful = true };
-
+            const string imageExtensions = "jpg,jpeg,png,gif";
             var fileName = Path.GetFileName(file.FileName);
+            var storageProvider = StorageProvider.Current;
+
             if (fileName != null)
             {
+                // Lower case
+                fileName = fileName.ToLower();
+
+                // Get the file extension
+                var fileExtension = Path.GetExtension(fileName);
+
                 //Before we do anything, check file size
-                if (file.ContentLength > Convert.ToInt32(ConfigUtils.GetAppSetting("FileUploadMaximumFileSizeInBytes")))
+                if (file.ContentLength > Convert.ToInt32(SiteConstants.Instance.FileUploadMaximumFileSizeInBytes))
                 {
                     //File is too big
                     upResult.UploadSuccessful = false;
@@ -328,11 +363,11 @@ namespace MVCForum.Website.Application
                 }
 
                 // now check allowed extensions
-                var allowedFileExtensions = ConfigUtils.GetAppSetting("FileUploadAllowedExtensions");
+                var allowedFileExtensions = SiteConstants.Instance.FileUploadAllowedExtensions;
 
                 if (onlyImages)
                 {
-                    allowedFileExtensions = "jpg,jpeg,png,gif";
+                    allowedFileExtensions = imageExtensions;
                 }
 
                 if (!string.IsNullOrEmpty(allowedFileExtensions))
@@ -340,9 +375,6 @@ namespace MVCForum.Website.Application
                     // Turn into a list and strip unwanted commas as we don't trust users!
                     var allowedFileExtensionsList = allowedFileExtensions.ToLower().Trim()
                                                      .TrimStart(',').TrimEnd(',').Split(',').ToList();
-
-                    // Get the file extension
-                    var fileExtension = Path.GetExtension(fileName.ToLower());
 
                     // If can't work out extension then just error
                     if (string.IsNullOrEmpty(fileExtension))
@@ -362,21 +394,73 @@ namespace MVCForum.Website.Application
                     }
                 }
 
-                // Sort the file name
-                var newFileName = string.Format("{0}_{1}", GuidComb.GenerateComb(), fileName.Trim(' ').Replace("_", "-").Replace(" ", "-").ToLower());
-                var path = Path.Combine(uploadFolderPath, newFileName);
+                // Store these here as we may change the values within the image manipulation
+                var newFileName = string.Empty;
+                var path = string.Empty;
 
-                // Save the file to disk
-                file.SaveAs(path);
+                if (imageExtensions.Split(',').ToList().Contains(fileExtension))
+                {
+                    // Rotate image if wrong want around
+                    using (var sourceimage = Image.FromStream(file.InputStream))
+                    {
+                        if (sourceimage.PropertyIdList.Contains(0x0112))
+                        {
+                            int rotationValue = sourceimage.GetPropertyItem(0x0112).Value[0];
+                            switch (rotationValue)
+                            {
+                                case 1: // landscape, do nothing
+                                    break;
 
-                var hostingRoot = HostingEnvironment.MapPath("~/") ?? "";
-                var fileUrl = path.Substring(hostingRoot.Length).Replace('\\', '/').Insert(0, "/");
+                                case 8: // rotated 90 right
+                                    // de-rotate:
+                                    sourceimage.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                                    break;
+
+                                case 3: // bottoms up
+                                    sourceimage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                                    break;
+
+                                case 6: // rotated 90 left
+                                    sourceimage.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                                    break;
+                            }
+                        }
+
+                        using (var stream = new MemoryStream())
+                        {
+                            // Save the image as a Jpeg only
+                            sourceimage.Save(stream, ImageFormat.Jpeg);
+                            stream.Position = 0;
+
+                            // Change the extension to jpg as that's what we are saving it as
+                            fileName = fileName.Replace(fileExtension, "");
+                            fileName = string.Concat(fileName, "jpg");
+                            file = new MemoryFile(stream, "image/jpeg", fileName);
+
+                            // Sort the file name
+                            newFileName = CreateNewFileName(fileName);
+
+                            // Get the storage provider and save file
+                            upResult.UploadedFileUrl = storageProvider.SaveAs(uploadFolderPath, newFileName, file);
+                        }
+                    }
+                }
+                else
+                {
+                    // Sort the file name
+                    newFileName = CreateNewFileName(fileName);
+                    upResult.UploadedFileUrl = storageProvider.SaveAs(uploadFolderPath, newFileName, file);
+                }
 
                 upResult.UploadedFileName = newFileName;
-                upResult.UploadedFileUrl = fileUrl;                
             }
 
             return upResult;
+        }
+
+        private static string CreateNewFileName(string fileName)
+        {
+            return $"{GuidComb.GenerateComb()}_{fileName.Trim(' ').Replace("_", "-").Replace(" ", "-").ToLower()}";
         }
 
         #endregion

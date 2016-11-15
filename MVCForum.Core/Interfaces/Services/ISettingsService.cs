@@ -1,12 +1,12 @@
-﻿using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.UnitOfWork;
+﻿using System;
+using MVCForum.Domain.DomainModel;
 
 namespace MVCForum.Domain.Interfaces.Services
 {
     public partial interface ISettingsService
     {
         Settings GetSettings(bool useCache = true);
-        void Save(Settings settings);
         Settings Add(Settings settings);
+        Settings Get(Guid id);
     }
 }

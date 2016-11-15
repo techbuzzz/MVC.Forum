@@ -1,47 +1,121 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MVCForum.Domain.Constants;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Exceptions;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Utilities;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Web;
+    using System.Web.Mvc;
+    using System.Data.Entity;
+    using Domain.Constants;
+    using Domain.DomainModel;
+    using Domain.DomainModel.General;
+    using Domain.Exceptions;
+    using Domain.Interfaces;
+    using Domain.Interfaces.Services;
+    using Data.Context;
+    using Utilities;
+
     public partial class CategoryService : ICategoryService
     {
         private readonly IRoleService _roleService;
-        private readonly ICategoryRepository _categoryRepository;
         private readonly ICategoryNotificationService _categoryNotificationService;
-        private readonly ICategoryPermissionForRoleRepository _categoryPermissionForRoleRepository;
+        private readonly ICategoryPermissionForRoleService _categoryPermissionForRoleService;
+        private readonly MVCForumContext _context;
+        private readonly ICacheService _cacheService;
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="categoryPermissionForRoleRepository"> </param>
+        /// <param name="context"></param>
         /// <param name="roleService"> </param>
-        /// <param name="categoryRepository"> </param>
         /// <param name="categoryNotificationService"> </param>
-        public CategoryService(ICategoryRepository categoryRepository, ICategoryPermissionForRoleRepository categoryPermissionForRoleRepository,
-            IRoleService roleService, ICategoryNotificationService categoryNotificationService)
+        /// <param name="categoryPermissionForRoleService"></param>
+        /// <param name="cacheService"></param>
+        public CategoryService(IMVCForumContext context, IRoleService roleService, ICategoryNotificationService categoryNotificationService, ICategoryPermissionForRoleService categoryPermissionForRoleService, ICacheService cacheService)
         {
-            _categoryRepository = categoryRepository;
-            _categoryPermissionForRoleRepository = categoryPermissionForRoleRepository;
             _roleService = roleService;
             _categoryNotificationService = categoryNotificationService;
+            _categoryPermissionForRoleService = categoryPermissionForRoleService;
+            _cacheService = cacheService;
+            _context = context as MVCForumContext;
         }
 
         /// <summary>
         /// Return all categories
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Category> GetAll()
+        public List<Category> GetAll()
         {
-            return _categoryRepository.GetAll();
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetAll");
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var orderedCategories = new List<Category>();
+                var allCats = _context.Category
+                        .Include(x => x.ParentCategory)
+                        .AsNoTracking()
+                        .OrderBy(x => x.SortOrder)
+                        .ToList();
+
+                foreach (var parentCategory in allCats.Where(x => x.ParentCategory == null).OrderBy(x => x.SortOrder))
+                {
+                    // Add the main category
+                    parentCategory.Level = 1;
+                    orderedCategories.Add(parentCategory);
+
+                    // Add subcategories under this
+                    orderedCategories.AddRange(GetSubCategories(parentCategory, allCats));
+                }
+                return orderedCategories;
+            });
         }
 
+        public List<Category> GetSubCategories(Category category, List<Category> allCategories, int level = 2)
+        {
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetSubCategories", "-", category.GetHashCode(), "-", level);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var catsToReturn = new List<Category>();
+                var cats = allCategories.Where(x => x.ParentCategory != null && x.ParentCategory.Id == category.Id).OrderBy(x => x.SortOrder);
+                foreach (var cat in cats)
+                {
+                    cat.Level = level;
+                    catsToReturn.Add(cat);
+                    catsToReturn.AddRange(GetSubCategories(cat, allCategories, level + 1));
+                }
+
+                return catsToReturn;
+            });
+        }
+
+        public List<SelectListItem> GetBaseSelectListCategories(List<Category> allowedCategories)
+        {
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetBaseSelectListCategories", "-", allowedCategories.GetHashCode());
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var cats = new List<SelectListItem> { new SelectListItem { Text = "", Value = "" } };
+                foreach (var cat in allowedCategories)
+                {
+                    var catName = string.Concat(LevelDashes(cat.Level), cat.Level > 1 ? " " : "", cat.Name);
+                    cats.Add(new SelectListItem { Text = catName, Value = cat.Id.ToString() });
+                }
+                return cats;
+            });
+        }
+
+        private static string LevelDashes(int level)
+        {
+            if (level > 1)
+            {
+                var sb = new StringBuilder();
+                for (var i = 0; i < level-1; i++)
+                {
+                    sb.Append("-");
+                }
+                return sb.ToString();
+            }
+            return string.Empty;
+        }
 
         /// <summary>
         /// Return all sub categories from a parent category id
@@ -50,16 +124,29 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IEnumerable<Category> GetAllSubCategories(Guid parentId)
         {
-            return _categoryRepository.GetAllSubCategories(parentId);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetAllSubCategories", "-", parentId);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                return _context.Category
+                        .Where(x => x.ParentCategory.Id == parentId)
+                        .OrderBy(x => x.SortOrder);
+            });
         }
 
         /// <summary>
         /// Get all main categories (Categories with no parent category)
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Category> GetAllMainCategories(bool getWithExtendedData = false)
+        public IEnumerable<Category> GetAllMainCategories()
         {
-            return _categoryRepository.GetMainCategories(getWithExtendedData);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetAllMainCategories");
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Category
+                                                                        .Include(x => x.ParentCategory)
+                                                                        .Include(x => x.Topics.Select(l => l.LastPost))
+                                                                        .Include(x => x.Topics.Select(l => l.Posts))
+                                                                        .Where(cat => cat.ParentCategory == null)
+                                                                        .OrderBy(x => x.SortOrder)
+                                                                        .ToList());
         }
 
         /// <summary>
@@ -67,26 +154,41 @@ namespace MVCForum.Services
         /// </summary>
         /// <param name="role"></param>
         /// <returns></returns>
-        public IEnumerable<Category> GetAllowedCategories(MembershipRole role)
+        public List<Category> GetAllowedCategories(MembershipRole role)
         {
-            var filteredCats = new List<Category>();
-            var allCats = _categoryRepository.GetAll().ToList();
-            foreach (var category in allCats)
+            return GetAllowedCategories(role, SiteConstants.Instance.PermissionDenyAccess);
+        }
+
+        public List<Category> GetAllowedCategories(MembershipRole role, string actionType)
+        {
+            return GetAllowedCategoriesCode(role, actionType);
+        }
+
+        private List<Category> GetAllowedCategoriesCode(MembershipRole role, string actionType)
+        {
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetAllowedCategoriesCode-", role.Id, "-", actionType);
+            return _cacheService.CachePerRequest(cacheKey, () =>
             {
-                var permissionSet = _roleService.GetPermissions(category, role);
-                if (!permissionSet[AppConstants.PermissionDenyAccess].IsTicked)
+                var filteredCats = new List<Category>();
+                var allCats = GetAll();
+                foreach (var category in allCats)
                 {
-                    filteredCats.Add(category);
+                    var permissionSet = _roleService.GetPermissions(category, role);
+                    if (!permissionSet[actionType].IsTicked)
+                    {
+                        // Only add it category is NOT locked
+                        filteredCats.Add(category);
+                    }
                 }
-            }
-            return filteredCats;
+                return filteredCats;
+            });
         }
 
         /// <summary>
         /// Add a new category
         /// </summary>
         /// <param name="category"></param>
-        public void Add(Category category)
+        public Category Add(Category category)
         {
             // Sanitize
             category = SanitizeCategory(category);
@@ -95,10 +197,10 @@ namespace MVCForum.Services
             category.DateCreated = DateTime.UtcNow;
 
             // url slug generator
-            category.Slug = ServiceHelpers.GenerateSlug(category.Name, _categoryRepository.GetBySlugLike(ServiceHelpers.CreateUrl(category.Name)), null);            
+            category.Slug = ServiceHelpers.GenerateSlug(category.Name, GetBySlugLike(ServiceHelpers.CreateUrl(category.Name)), null);
 
             // Add the category
-            _categoryRepository.Add(category);
+            return _context.Category.Add(category);
         }
 
         /// <summary>
@@ -110,7 +212,22 @@ namespace MVCForum.Services
             // Sanitize
             category = SanitizeCategory(category);
 
-            category.Slug = ServiceHelpers.GenerateSlug(category.Name, _categoryRepository.GetBySlugLike(category.Slug), category.Slug);
+            var updateSlug = true;
+
+            // Check if slug has changed as this could be an update
+            if (!string.IsNullOrEmpty(category.Slug))
+            {
+                var categoryBySlug = GetBySlugWithSubCategories(category.Slug);
+                if (categoryBySlug.Category.Id == category.Id)
+                {
+                    updateSlug = false;
+                }
+            }
+
+            if (updateSlug)
+            {
+                category.Slug = ServiceHelpers.GenerateSlug(category.Name, GetBySlugLike(category.Slug), category.Slug);   
+            }
         }
 
         /// <summary>
@@ -122,7 +239,7 @@ namespace MVCForum.Services
         {
             // Sanitize any strings in a category
             category.Description = StringUtils.GetSafeHtml(category.Description);
-            category.Name = StringUtils.SafePlainText(category.Name);
+            category.Name = HttpUtility.HtmlDecode(StringUtils.SafePlainText(category.Name));
             return category;
         }
 
@@ -133,12 +250,35 @@ namespace MVCForum.Services
         /// <returns></returns>
         public Category Get(Guid id)
         {
-            return _categoryRepository.Get(id);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "Get-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Category.FirstOrDefault(x => x.Id == id));
         }
 
-        public IList<Category> Get(IList<Guid> ids)
+        public IList<Category> Get(IList<Guid> ids, bool fullGraph = false)
         {
-            return _categoryRepository.Get(ids);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "Get-", ids.GetHashCode(), "-", fullGraph);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                IList<Category> categories;
+
+                if (fullGraph)
+                {
+                    categories =
+                        _context.Category.AsNoTracking()
+                            .Include(x => x.Topics.Select(l => l.LastPost.User))
+                            .Include(x => x.ParentCategory)
+                            .Where(x => ids.Contains(x.Id))
+                            .ToList();
+                }
+                else
+                {
+                    categories = _context.Category
+                        .AsNoTracking().Where(x => ids.Contains(x.Id)).ToList();
+                }
+
+                // make sure categories are returned in order of ids (not in Database order)
+                return ids.Select(id => categories.Single(c => c.Id == id)).ToList();
+            });
         }
 
         /// <summary>
@@ -148,7 +288,23 @@ namespace MVCForum.Services
         /// <returns></returns>
         public CategoryWithSubCategories GetBySlugWithSubCategories(string slug)
         {
-            return _categoryRepository.GetBySlugWithSubCategories(slug);
+            slug = StringUtils.SafePlainText(slug);
+
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetBySlugWithSubCategories-", slug);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var cat = (from category in _context.Category
+                           where category.Slug == slug
+                           select new CategoryWithSubCategories
+                           {
+                               Category = category,
+                               SubCategories = (from cats in _context.Category
+                                                where cats.ParentCategory.Id == category.Id
+                                                select cats)
+                           }).FirstOrDefault();
+
+                return cat;
+            });
         }
 
         /// <summary>
@@ -158,12 +314,38 @@ namespace MVCForum.Services
         /// <returns></returns>
         public Category Get(string slug)
         {
-            return _categoryRepository.GetBySlug(StringUtils.GetSafeHtml(slug));
+            return GetBySlug(slug);
         }
 
-        public IList<Category> GetCategoryParents(Category category)
+        /// <summary>
+        /// Gets the category parents
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="allowedCategories"></param>
+        /// <returns></returns>
+        public List<Category> GetCategoryParents(Category category, List<Category> allowedCategories)
         {
-            return _categoryRepository.GetCategoryParents(category);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetCategoryParents-", allowedCategories.GetHashCode());
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var path = category.Path;
+                var cats = new List<Category>();
+                if (!string.IsNullOrEmpty(path))
+                {
+                    var catGuids = path.Trim().Split(',').Select(x => new Guid(x)).ToList();
+                    if (!catGuids.Contains(category.Id))
+                    {
+                        catGuids.Add(category.Id);
+                    }
+                    cats = Get(catGuids).ToList();
+                }
+                var allowedCatIds = new List<Guid>();
+                if (allowedCategories.Any())
+                {
+                    allowedCatIds.AddRange(allowedCategories.Select(x => x.Id));
+                }
+                return cats.Where(x => allowedCatIds.Contains(x.Id)).ToList();
+            });
         }
 
         /// <summary>
@@ -178,11 +360,11 @@ namespace MVCForum.Services
             if (okToDelete)
             {
                 // Get any categorypermissionforoles and delete these first
-                var rolesToDelete = _categoryPermissionForRoleRepository.GetByCategory(category.Id);
+                var rolesToDelete = _categoryPermissionForRoleService.GetByCategory(category.Id);
 
                 foreach (var categoryPermissionForRole in rolesToDelete)
                 {
-                    _categoryPermissionForRoleRepository.Delete(categoryPermissionForRole);
+                    _categoryPermissionForRoleService.Delete(categoryPermissionForRole);
                 }
 
                 var categoryNotificationsToDelete = new List<CategoryNotification>();
@@ -192,7 +374,7 @@ namespace MVCForum.Services
                     _categoryNotificationService.Delete(categoryNotification);
                 }
 
-                _categoryRepository.Delete(category);
+                _context.Category.Remove(category);
             }
             else
             {
@@ -202,16 +384,38 @@ namespace MVCForum.Services
             }
         }
 
+        public Category GetBySlug(string slug)
+        {
+            slug = StringUtils.GetSafeHtml(slug);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetBySlug-", slug);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Category.FirstOrDefault(x => x.Slug == slug));
+        }
+
+        public IList<Category> GetBySlugLike(string slug)
+        {
+            slug = StringUtils.GetSafeHtml(slug);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetBySlugLike-", slug);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.Category
+                                                                    .Where(x => x.Slug.Contains(slug))
+                                                                    .ToList());
+        }
+
         /// <summary>
-        /// Save / Update a category
+        /// Gets all categories right the way down
         /// </summary>
         /// <param name="category"></param>
-        public void Save(Category category)
+        /// <returns></returns>
+        public IList<Category> GetAllDeepSubCategories(Category category)
         {
-            // Sanitize
-            category = SanitizeCategory(category);
-
-            _categoryRepository.Update(category);
+            var cacheKey = string.Concat(CacheKeys.Category.StartsWith, "GetAllDeepSubCategories-", category.Id);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var catGuid = category.Id.ToString().ToLower();
+                return _context.Category
+                        .Where(x => x.Path != null && x.Path.ToLower().Contains(catGuid))
+                        .OrderBy(x => x.SortOrder)
+                        .ToList();
+            });
         }
     }
 }

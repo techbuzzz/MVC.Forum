@@ -1,17 +1,24 @@
-﻿using System.Collections.Generic;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using Domain.Constants;
+    using System;
+    using System.Collections.Generic;
+    using System.Data.Entity;
+    using System.Linq;
+    using Domain.DomainModel;
+    using Domain.Interfaces;
+    using Domain.Interfaces.Services;
+    using Data.Context;
+
     public partial class CategoryNotificationService : ICategoryNotificationService
     {
-        private readonly ICategoryNotificationRepository _categoryNotificationRepository;
+        private readonly MVCForumContext _context;
+        private readonly ICacheService _cacheService;
 
-        public CategoryNotificationService(ICategoryNotificationRepository categoryNotificationRepository)
+        public CategoryNotificationService(IMVCForumContext context, ICacheService cacheService)
         {
-            _categoryNotificationRepository = categoryNotificationRepository;
+            _cacheService = cacheService;
+            _context = context as MVCForumContext;
         }
 
         /// <summary>
@@ -20,7 +27,8 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<CategoryNotification> GetAll()
         {
-            return _categoryNotificationRepository.GetAll();
+            var cacheKey = string.Concat(CacheKeys.CategoryNotification.StartsWith, "GetAll");
+            return _cacheService.CachePerRequest(cacheKey, () => _context.CategoryNotification.ToList());
         }
 
         /// <summary>
@@ -29,7 +37,7 @@ namespace MVCForum.Services
         /// <param name="notification"></param>
         public void Delete(CategoryNotification notification)
         {
-            _categoryNotificationRepository.Delete(notification);
+            _context.CategoryNotification.Remove(notification);
         }
 
         /// <summary>
@@ -39,7 +47,11 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<CategoryNotification> GetByCategory(Category category)
         {
-            return _categoryNotificationRepository.GetByCategory(category);
+            var cacheKey = string.Concat(CacheKeys.CategoryNotification.StartsWith, "GetByCategory-", category.Id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.CategoryNotification
+                                                                        .AsNoTracking()
+                                                                        .Where(x => x.Category.Id == category.Id)
+                                                                        .ToList());
         }
 
         /// <summary>
@@ -49,7 +61,10 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<CategoryNotification> GetByUser(MembershipUser user)
         {
-            return _categoryNotificationRepository.GetByUser(user);
+            var cacheKey = string.Concat(CacheKeys.CategoryNotification.StartsWith, "GetByUser-", user.Id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.CategoryNotification
+                                                                        .Where(x => x.User.Id == user.Id)
+                                                                        .ToList());
         }
 
         /// <summary>
@@ -57,20 +72,36 @@ namespace MVCForum.Services
         /// </summary>
         /// <param name="user"></param>
         /// <param name="category"></param>
+        /// <param name="addTracking"></param>
         /// <returns></returns>
-        public IList<CategoryNotification> GetByUserAndCategory(MembershipUser user, Category category)
+        public IList<CategoryNotification> GetByUserAndCategory(MembershipUser user, Category category, bool addTracking = false)
         {
-            return _categoryNotificationRepository.GetByUserAndCategory(user, category);
+            var cacheKey = string.Concat(CacheKeys.CategoryNotification.StartsWith, "GetByUserAndCategory-", user.Id, "-", category.Id, "-", addTracking);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var notifications = _context.CategoryNotification.Where(x => x.Category.Id == category.Id && x.User.Id == user.Id);
+                if (addTracking)
+                {
+                    return notifications.ToList();
+                }
+                return notifications.AsNoTracking().ToList();
+            });
         }
 
         /// <summary>
         /// Add a new category notification
         /// </summary>
         /// <param name="category"></param>
-        public void Add(CategoryNotification category)
+        public CategoryNotification Add(CategoryNotification category)
         {
-            _categoryNotificationRepository.Add(category);
+            return _context.CategoryNotification.Add(category);
 
+        }
+
+        public CategoryNotification Get(Guid id)
+        {
+            var cacheKey = string.Concat(CacheKeys.CategoryNotification.StartsWith, "Get-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.CategoryNotification.FirstOrDefault(cat => cat.Id == id));
         }
     }
 }

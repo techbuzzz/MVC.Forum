@@ -17,16 +17,18 @@ namespace MVCForum.Website.Areas.Admin.Controllers
     {
         private readonly IRoleService _roleService;
         private readonly IEmailService _emailService;
+        private readonly ICacheService _cacheService;
 
         public SettingsController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager,
             ILocalizationService localizationService,
             IMembershipService membershipService,
             IRoleService roleService,
-            ISettingsService settingsService, IEmailService emailService)
+            ISettingsService settingsService, IEmailService emailService, ICacheService cacheService)
             : base(loggingService, unitOfWorkManager, membershipService, localizationService, settingsService)
         {
             _roleService = roleService;
             _emailService = emailService;
+            _cacheService = cacheService;
         }
 
         public ActionResult Index()
@@ -35,7 +37,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             {
                 var currentSettings = SettingsService.GetSettings();
                 var settingViewModel = ViewModelMapping.SettingsToSettingsViewModel(currentSettings);
-                settingViewModel.NewMemberStartingRole = _roleService.GetRole(SettingsService.GetSettings().NewMemberStartingRole.Id).Id;
+                settingViewModel.NewMemberStartingRole = _roleService.GetRole(currentSettings.NewMemberStartingRole.Id).Id;
                 settingViewModel.DefaultLanguage = LocalizationService.DefaultLanguage.Id;
                 settingViewModel.Roles = _roleService.AllRoles().ToList();
                 settingViewModel.Languages = LocalizationService.AllLanguages.ToList();
@@ -44,6 +46,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Index(EditSettingsViewModel settingsViewModel)
         {
             if (ModelState.IsValid)
@@ -51,9 +54,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 using (var unitOfWork = UnitOfWorkManager.NewUnitOfWork())
                 {
                     try
-                    {
-                        
-                        var existingSettings = SettingsService.GetSettings();
+                    {                        
+                        var existingSettings = SettingsService.GetSettings(false);
                         var updatedSettings = ViewModelMapping.SettingsViewModelToSettings(settingsViewModel, existingSettings);
 
                         // Map over viewModel from 
@@ -70,7 +72,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         }
 
                         unitOfWork.Commit();
-
+                        _cacheService.ClearStartsWith(CacheKeys.Settings.Main);
                     }
                     catch (Exception ex)
                     {
@@ -103,24 +105,98 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         [HttpPost]
         public ActionResult SendTestEmail()
         {
-            var sb = new StringBuilder();
-            sb.AppendFormat("<p>{0}</p>", string.Concat("This is a test email from ", SettingsService.GetSettings().ForumName));
-            var email = new Email
-                {
-                    EmailFrom = SettingsService.GetSettings().AdminEmailAddress,
-                    EmailTo = SettingsService.GetSettings().AdminEmailAddress,
-                    NameTo = "Email Test Admin",
-                    Subject = string.Concat("Email Test From ", SettingsService.GetSettings().ForumName)
-                };
-            email.Body = _emailService.EmailTemplate(email.NameTo, sb.ToString());
-            _emailService.SendMail(email);
-
-            TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
+            using (var uow = UnitOfWorkManager.NewUnitOfWork())
             {
-                Message = "Test Email Sent",
-                MessageType = GenericMessages.success
-            };
-            return RedirectToAction("TestEmail");
+                var settings = SettingsService.GetSettings();
+                var sb = new StringBuilder();
+                sb.Append($"<p>{string.Concat("This is a test email from ", settings.ForumName)}</p>");
+                var email = new Email
+                {
+                    EmailTo = settings.AdminEmailAddress,
+                    NameTo = "Email Test Admin",
+                    Subject = string.Concat("Email Test From ", settings.ForumName)
+                };
+                email.Body = _emailService.EmailTemplate(email.NameTo, sb.ToString());
+                _emailService.SendMail(email);
+
+                var message = new GenericMessageViewModel
+                {
+                    Message = "Test Email Sent",
+                    MessageType = GenericMessages.success
+                };
+
+                try
+                {
+                    uow.Commit();
+                }
+                catch (Exception ex)
+                {
+                    uow.Rollback();
+                    LoggingService.Error(ex);
+                    message.Message = "Error sending email";
+                    message.MessageType = GenericMessages.danger;
+                }
+                TempData[AppConstants.MessageViewBagName] = message;
+
+                return RedirectToAction("Index");
+            }
+        }
+
+        public ActionResult CustomCode()
+        {
+            using (UnitOfWorkManager.NewUnitOfWork())
+            {
+                var settings = SettingsService.GetSettings();
+                var viewModel = new CustomCodeViewModels
+                {
+                    CustomFooterCode = settings.CustomFooterCode,
+                    CustomHeaderCode = settings.CustomHeaderCode
+                };
+                return View(viewModel);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult CustomCode(CustomCodeViewModels viewModel)
+        {
+            using (var unitOfWork = UnitOfWorkManager.NewUnitOfWork())
+            {
+
+                var settings = SettingsService.GetSettings(false);
+
+                settings.CustomFooterCode = viewModel.CustomFooterCode;
+                settings.CustomHeaderCode = viewModel.CustomHeaderCode;
+
+                try
+                {
+                    unitOfWork.Commit();
+
+                    // Clear cache
+                    _cacheService.ClearStartsWith(CacheKeys.Settings.Main);
+
+                    // Show a message
+                    ShowMessage(new GenericMessageViewModel
+                    {
+                        Message = "Updated",
+                        MessageType = GenericMessages.success
+                    });
+
+                }
+                catch (Exception ex)
+                {
+                    LoggingService.Error(ex);
+                    unitOfWork.Rollback();
+
+                    // Show a message
+                    ShowMessage(new GenericMessageViewModel
+                    {
+                        Message = "Error, please check log",
+                        MessageType = GenericMessages.danger
+                    });
+                }
+
+                return View(viewModel);
+            }
         }
     }
 }

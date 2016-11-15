@@ -1,36 +1,38 @@
-﻿using System.Linq;
-using System.Web.Mvc;
-using MVCForum.Domain.Constants;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Domain.Interfaces.UnitOfWork;
-using MVCForum.Website.ViewModels;
-
-namespace MVCForum.Website.Controllers
+﻿namespace MVCForum.Website.Controllers
 {
+    using System.Web.Mvc;
+    using Domain.DomainModel.Enums;
+    using Domain.Interfaces.Services;
+    using Domain.Interfaces.UnitOfWork;
+    using ViewModels;
+
     public partial class StatsController : BaseController
     {
         private readonly ITopicService _topicService;
         private readonly IPostService _postService;
+        private readonly ICategoryService _categoryService;
 
         public StatsController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager, IMembershipService membershipService, 
-            ILocalizationService localizationService, IRoleService roleService, ISettingsService settingsService, ITopicService topicService, IPostService postService) : 
-            base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService)
+            ILocalizationService localizationService, IRoleService roleService, ISettingsService settingsService, ITopicService topicService, 
+            IPostService postService, ICategoryService categoryService, ICacheService cacheService) : 
+            base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService, cacheService)
         {
             _topicService = topicService;
             _postService = postService;
+            _categoryService = categoryService;
         }
 
         [ChildActionOnly]
-        [OutputCache(Duration = AppConstants.DefaultCacheLengthInSeconds)]
+        [OutputCache(Duration = (int)CacheTimes.OneHour)]
         public PartialViewResult GetMainStats()
         {
+            var allCats = _categoryService.GetAll();
             var viewModel = new MainStatsViewModel
                                 {
-                                    LatestMembers = MembershipService.GetLatestUsers(10).ToDictionary(o => o.UserName,
-                                                                                                      o => o.NiceUrl),
+                                    LatestMembers = MembershipService.GetLatestUsers(10),
                                     MemberCount = MembershipService.MemberCount(),
-                                    TopicCount = _topicService.TopicCount(),
-                                    PostCount = _postService.PostCount()
+                                    TopicCount = _topicService.TopicCount(allCats),
+                                    PostCount = _postService.PostCount(allCats)
                                 };
             return PartialView(viewModel);
         }

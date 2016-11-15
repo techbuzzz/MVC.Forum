@@ -1,51 +1,31 @@
-﻿namespace MVCForum.Domain.Constants
+﻿using System.Collections.Generic;
+
+namespace MVCForum.Domain.Constants
 {
     public static class AppConstants
     {
-        // Lucene String NAmes
-        public const string LucId = "Id";
-        public const string LucPostContent = "PostContent";
-        public const string LucDateCreated = "DateCreated";
-        public const string LucTopicName = "TopicName";
-        public const string LucTopicId = "TopicId";
-        public const string LucTopicUrl = "TopicUrl";
-        public const string LucUsername = "Username";
-        public const string LucUserId = "UserId";
-        //private const string LucTopicTags = "TopicTags";
+        public const int SaltSize = 24;
+        public const string EditorType = "forumeditor";
 
-        //Mobile Check Name
-        public const string IsMobileDevice = "IsMobileDevice";
+        // Scheduled Tasks
+        public const string DefaultTaskGroup = "MVCForumTaskGroup";
 
         // Cookie names
         public const string LanguageIdCookieName = "LanguageCulture";
         public const string MemberEmailConfirmationCookieName = "MVCForumEmailConfirmation";
 
         // Cache names
-        public const string SettingsCacheName = "MainSettings";
-        public const string LocalizationCacheName = "Localization";
-        public const string MemberCacheName = "#member#-{0}";
-        
-        //Querystring names
-        public const string PostOrderBy = "order";
-        public const string AllPosts = "all";
+        //TODO - Move to cache keys
+        public const string LocalisationCacheName = "Localization-";
+        public static string LanguageStrings = string.Concat(LocalisationCacheName, "LangStrings-");
 
-        // Themes
-        public const string ThemeRootFolderName = "Themes";
-
-        // Editor
-        //public const string EditorType = "bbeditor";
-        //public const string EditorType = "tinymceeditor";
-        public const string EditorType = "markdowneditor";   
-
-        // Url names
-        public const string CategoryUrlIdentifier = "cat";
-        public const string TopicUrlIdentifier = "chat";
-        public const string TagsUrlIdentifier = "tagged";
-        public const string MemberUrlIdentifier = "profile";
-
-        // View Bag Constants
+        // View Bag / Temp Data Constants
         public const string MessageViewBagName = "Message";
         public const string DefaultCategoryViewBagName = "DefaultCategory";
+        public const string GlobalClass = "GlobalClass";
+        public const string CurrentAction = "CurrentAction";
+        public const string CurrentController = "CurrentController";
+        public const string MemberRegisterViewModel = "MemberRegisterViewModel";
         
         // Main admin role [This should never be changed]
         public const string AdminRoleName = "Admin";
@@ -54,68 +34,83 @@
         // This is the role a non logged in user defaults to
         public const string GuestRoleName = "Guest";
 
-        // Main moderator Role [This should never be changed]
-        public const string ModeratorRoleName = "Moderator";
-
-        /// <summary>
-        ///  These are the permission names used as keys to return them
-        ///  So they must be the same as the database value 
-        /// </summary>
-
-        public const string PermissionReadOnly = "Read Only";
-        public const string PermissionDeletePosts = "Delete Posts";
-        public const string PermissionEditPosts = "Edit Posts";
-        public const string PermissionCreateStickyTopics = "Sticky Topics";
-        public const string PermissionDenyAccess = "Deny Access";
-        public const string PermissionLockTopics = "Lock Topics";
-        public const string PermissionVoteInPolls = "Vote In Polls";
-        //Added in v1.3
-        public const string PermissionCreatePolls = "Create Polls";
-        public const string PermissionCreateTopics = "Create Topics";
-        public const string PermissionAttachFiles = "Attach Files";
+        //------------ End Permissions ----------
 
         // Paging options
-        public const int AdminListPageSize = 30;
-        public const int PagingGroupSize = 10;
-        public const int ActiveTopicsListSize = 50;
-        public const int PrivateMessageListSize = 30;
         public const string PagingUrlFormat = "{0}?p={1}";
-        public const int SimilarTopicsListSize = 20;
 
-        // Last Activity Time Check
-        public const int TimeSpanInMinutesToDoCheck = 10;
-        public const int TimeSpanInMinutesToShowMembers = 20;
+        // How long 
+        public const int TimeSpanInMinutesToShowMembers = 12;
 
-        // Social
-        public const int GravatarPostSize = 50;
-        public const int GravatarTopicSize = 35;
-        public const int GravatarProfileSize = 85;
-        public const int GravatarLeaderboardSize = 25;
-
-        // System and default folder
-        public const string ThemeRootFolder = "~/Themes/";
-	
         /// <summary>
-        /// A short cache time to help with speeding up the site
+        /// Last Activity Time Check. 
         /// </summary>
-        public const int DefaultCacheLengthInSeconds = 600;
+        public const int TimeSpanInMinutesToDoCheck = 3;
 
-        public const string InstallerName = "YesImAnInstallerSpankMe";
-        public const string InstallerUrl = "/install/";
-        public const string InMobileView = "InMobileView";
-        public const string GoToInstaller = "GoToInstaller";
-        public const string SuccessDbFile = "SuccessDbFile.txt";
+        
+        public const string EditorTemplateColourPicker = "colourpicker";
 
+        //Querystring names
+        public const string PostOrderBy = "order";
+        public const string AllPosts = "all";
 
-        //Uploads
-        public const string UploadFolderPath = "~/content/uploads/";
+        //Mobile Check Name
+        public const string IsMobileDevice = "IsMobileDevice";
 
-        //Social login Attributes
-        public const string LoginGoogleFirstName = "http://axschema.org/namePerson/first";
-        public const string LoginGoogleLastName = "http://axschema.org/namePerson/last";
-
-        // Database Connection Key
-        public const string MvcForumContext = "MVCForumContext";
+        /// <summary>
+        /// Cache lengths
+        /// </summary>
+        public static List<string> ReflectionDllsToAvoid = new List<string>
+        {
+            "EcmaScript.NET.dll",
+            "Unity.WebApi.dll",
+            "Skybrud.Social.dll",
+            "Antlr3.Runtime.dll",
+            "WebGrease.dll",
+            "System.Web.Optimization.dll",
+            "Common.Logging.Core.dll",
+            "Common.Logging.dll",
+            "EntityFramework.dll",
+            "EntityFramework.SqlServer.dll",
+            "EntityFramework.SqlServerCompact.dll",
+            "System.Data.SqlServerCe.dll",
+            "Newtonsoft.Json.dll",
+            "Quartz.dll",
+            "SquishIt.Framework.dll",
+            "SquishIt.Mvc.dll",
+            "ImageProcessor.Web.dll",
+            "ImageProcessor.dll",
+            "AntiXssLibrary.dll",
+            "HtmlSanitizationLibrary.dll",
+            "System.Web.Http.dll",
+            "System.Web.Http.WebHost.dll",
+            "System.Net.Http.Formatting.dll",
+            "System.Web.Helpers.dll",
+            "System.Web.Mvc.dll",
+            "System.Web.WebPages.Deployment.dll",
+            "System.Web.WebPages.dll",
+            "System.Web.WebPages.Razor.dll",
+            "System.Web.Razor.dll",
+            "Quartz.Unity.45.dll",
+            "EFCache.dll",
+            "HtmlAgilityPack.dll",
+            "Microsoft.Practices.Unity.Configuration.dll",
+            "Microsoft.Practices.Unity.dll",
+            "Microsoft.Practices.Unity.RegistrationByConvention.dll",
+            "Microsoft.Practices.ServiceLocation.dll",
+            "Unity.WebApi.dll",
+            "Unity.Mvc4.dll",
+            "WebActivator.dll",
+            "System.Net.Http.dll",
+            "System.Net.Http.WebRequest.dll",
+            "AjaxMin.dll",
+            "Iesi.Collections.dll",
+            "Yahoo.Yui.Compressor.dll",
+            "Microsoft.Web.Services3.dll",
+            "Microsoft.Web.Infrastructure.dll",
+            "DotNetOpenAuth",
+            "Microsoft",
+        };
 
     }
 }

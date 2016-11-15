@@ -1,13 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Web.Mvc;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Domain.Interfaces.UnitOfWork;
-using MVCForum.Website.ViewModels;
-
-namespace MVCForum.Website.Controllers
+﻿namespace MVCForum.Website.Controllers
 {
+    using System;
+    using System.Linq;
+    using System.Web.Mvc;
+    using Domain.DomainModel;
+    using Domain.Interfaces.Services;
+    using Domain.Interfaces.UnitOfWork;
+    using ViewModels;
+
     [Authorize]
     public partial class PollController : BaseController
     {
@@ -15,19 +15,14 @@ namespace MVCForum.Website.Controllers
         private readonly IPollVoteService _pollVoteService;
         private readonly IPollAnswerService _pollAnswerService;
 
-        private MembershipUser LoggedOnUser;
-
         public PollController(ILoggingService loggingService, IUnitOfWorkManager unitOfWorkManager, IMembershipService membershipService, 
             ILocalizationService localizationService, IRoleService roleService, ISettingsService settingsService, IPollService pollService, IPollVoteService pollVoteService, 
-            IPollAnswerService pollAnswerService)
-            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService)
+            IPollAnswerService pollAnswerService, ICacheService cacheService)
+            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService, cacheService)
         {
             _pollService = pollService;
             _pollAnswerService = pollAnswerService;
             _pollVoteService = pollVoteService;
-
-
-            LoggedOnUser = UserIsAuthenticated ? MembershipService.GetUser(Username) : null;
         }
 
         [HttpPost]
@@ -38,13 +33,15 @@ namespace MVCForum.Website.Controllers
                 try
                 {
                     // Fist need to check this user hasn't voted already and is trying to fudge the system
-                    if(!_pollVoteService.HasUserVotedAlready(updatePollViewModel.AnswerId, LoggedOnUser.Id))
+                    if(!_pollVoteService.HasUserVotedAlready(updatePollViewModel.AnswerId, LoggedOnReadOnlyUser.Id))
                     {
+                        var loggedOnUser = MembershipService.GetUser(LoggedOnReadOnlyUser.Id);
+
                         // Get the answer
                         var pollAnswer = _pollAnswerService.Get(updatePollViewModel.AnswerId);
                         
                         // create a new vote
-                        var pollVote = new PollVote {PollAnswer = pollAnswer,User = LoggedOnUser};
+                        var pollVote = new PollVote { PollAnswer = pollAnswer, User = loggedOnUser };
 
                         // Add it
                         _pollVoteService.Add(pollVote);
@@ -56,8 +53,8 @@ namespace MVCForum.Website.Controllers
                     // Create the view model and get ready return the poll partial view
                     var poll = _pollService.Get(updatePollViewModel.PollId);
                     var votes = poll.PollAnswers.SelectMany(x => x.PollVotes).ToList();
-                    var alreadyVoted = (votes.Count(x => x.User.Id == LoggedOnUser.Id) > 0);
-                    var viewModel = new ShowPollViewModel { Poll = poll, TotalVotesInPoll = votes.Count(), UserHasAlreadyVoted = alreadyVoted };
+                    var alreadyVoted = (votes.Count(x => x.User.Id == LoggedOnReadOnlyUser.Id) > 0);
+                    var viewModel = new PollViewModel { Poll = poll, TotalVotesInPoll = votes.Count(), UserHasAlreadyVoted = alreadyVoted };
 
                     // Commit the transaction
                     unitOfWork.Commit();

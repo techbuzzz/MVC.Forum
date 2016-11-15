@@ -18,6 +18,7 @@
     <UseIISExpress>true</UseIISExpress>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
+    <!--<BuildPackage>true</BuildPackage>-->
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
@@ -27,6 +28,9 @@
     <IISExpressUseClassicPipelineMode />
     <MvcProjectUpgradeChecked>true</MvcProjectUpgradeChecked>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,177 +57,113 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\AjaxMin.4.48.4489.28432\lib\net20\AjaxMin.dll</HintPath>
     </Reference>
-    <Reference Include="DataAnnotationsExtensions, Version=1.1.0.0, Culture=neutral, PublicKeyToken=358a5681c50fd84c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DataAnnotationsExtensions.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
+    <Reference Include="Antlr3.Runtime, Version=3.4.1.9004, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="DataAnnotationsExtensions.ClientValidation, Version=1.1.0.0, Culture=neutral, PublicKeyToken=358a5681c50fd84c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DataAnnotationsExtensions.MVC3.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.ClientValidation.dll</HintPath>
+    <Reference Include="Common.Logging, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.3.1\lib\net40\Common.Logging.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="DotNetOpenAuth.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.Core.4.3.4.13329\lib\net45-full\DotNetOpenAuth.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.Core.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.Core.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.Core.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.InfoCard, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.InfoCard.4.3.4.13329\lib\net45-full\DotNetOpenAuth.InfoCard.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.InfoCard.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.InfoCard.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.InfoCard.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.Mvc5">
-      <HintPath>..\packages\DotNetOpenAuth.Mvc5.4.3.4.13329\lib\net45-full\DotNetOpenAuth.Mvc5.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth.Core.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth.Common, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth.Common.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth.Consumer, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth.Consumer.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth.Consumer.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth.ServiceProvider, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth.ServiceProvider.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth.ServiceProvider.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth2, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth2.Core.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth2.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth2.AuthorizationServer, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth2.AuthorizationServer.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth2.AuthorizationServer.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth2.Client, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth2.Client.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth2.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth2.Client.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth2.Client.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth2.Client.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth2.ClientAuthorization, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth2.ClientAuthorization.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth2.ClientAuthorization.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OAuth2.ResourceServer, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OAuth2.ResourceServer.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OAuth2.ResourceServer.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenId, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenId.Core.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenId.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenId.Provider, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenId.Provider.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenId.Provider.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenId.Provider.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenId.Provider.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenId.Provider.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenId.RelyingParty, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenId.RelyingParty.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenId.RelyingParty.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenId.RelyingParty.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenId.RelyingParty.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenId.RelyingParty.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenId.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenId.Core.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenId.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenIdInfoCard.UI, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenIdInfoCard.UI.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenIdInfoCard.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="DotNetOpenAuth.OpenIdOAuth, Version=4.3.0.0, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\DotNetOpenAuth.OpenIdOAuth.4.3.4.13329\lib\net45-full\DotNetOpenAuth.OpenIdOAuth.dll</HintPath>
+    <Reference Include="Common.Logging.Core, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="EcmaScript.NET, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\YUICompressor.NET.2.0.0.0\lib\NET20\EcmaScript.NET.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Facebook, Version=6.0.10.0, Culture=neutral, PublicKeyToken=58cb4f2111d1e6de, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Facebook.6.4.2\lib\net40-client\Facebook.dll</HintPath>
+    <Reference Include="EntityFramework.SqlServerCompact, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.SqlServerCompact.6.1.3\lib\net45\EntityFramework.SqlServerCompact.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\YUICompressor.NET.2.0.0.0\lib\NET20\Iesi.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="ImageProcessor, Version=1.9.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ImageProcessor.1.9.2.0\lib\ImageProcessor.dll</HintPath>
+    <Reference Include="ImageProcessor, Version=2.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImageProcessor.2.4.3.0\lib\net45\ImageProcessor.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="ImageProcessor.Web, Version=3.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ImageProcessor.Web.3.2.5.0\lib\net45\ImageProcessor.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="LowercaseRoutesMVC">
-      <HintPath>..\packages\LowercaseRoutesMVC.1.0.3\lib\LowercaseRoutesMVC.dll</HintPath>
+    <Reference Include="ImageProcessor.Web, Version=4.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ImageProcessor.Web.4.6.3.0\lib\net45\ImageProcessor.Web.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6d32ff45e0ccc69f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6d32ff45e0ccc69f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6d32ff45e0ccc69f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="SquishIt.Framework, Version=0.9.5.4, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SquishIt.0.9.5.4\lib\SquishIt.Framework.dll</HintPath>
+    <Reference Include="NPoco, Version=3.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NPoco.3.4.1\lib\net45\NPoco.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="SquishIt.Mvc, Version=0.9.5.4, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\SquishIt.Mvc.0.9.5.4\lib\SquishIt.Mvc.dll</HintPath>
+    <Reference Include="Quartz, Version=2.3.3.0, Culture=neutral, PublicKeyToken=f6b8c98a402cc8a4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Quartz.2.3.3\lib\net40\Quartz.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Skybrud.Social, Version=0.9.4.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Skybrud.Social.0.9.4.3\lib\net40\Skybrud.Social.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Skybrud.Social.Microsoft">
+      <HintPath>..\Externals\Skybrud.Social.Microsoft.dll</HintPath>
+    </Reference>
+    <Reference Include="SquishIt.Framework, Version=0.9.8.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SquishIt.0.9.8.2\lib\SquishIt.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SquishIt.Mvc, Version=0.9.8.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SquishIt.Mvc.0.9.8.2\lib\SquishIt.Mvc.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http, Version=2.2.18.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.dll</HintPath>
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Compact.4.0.8876.1\lib\net40\System.Data.SqlServerCe.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="System.Net.Http.Extensions, Version=2.2.18.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.1.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.Primitives, Version=2.2.18.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Net.Http.WebRequest, Version=2.2.18.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -232,50 +172,56 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
     <Reference Include="System.Web.Helpers">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.2\lib\net45\System.Web.Helpers.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Http">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.1.2\lib\net45\System.Web.Http.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="System.Web.Http.WebHost">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.1.2\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.3\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Mvc">
-      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.1.2\lib\net45\System.Web.Mvc.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Razor">
-      <HintPath>..\packages\Microsoft.AspNet.Razor.3.1.2\lib\net45\System.Web.Razor.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Web.WebPages">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.2\lib\net45\System.Web.WebPages.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.WebPages.Deployment">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.2\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Web.WebPages.Razor">
-      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.1.2\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
-    <Reference Include="System.EnterpriseServices" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Validation">
-      <HintPath>..\packages\Validation.2.0.4.14103\lib\portable-windows8+net40+sl5+wp8+wpa81+wp81+MonoAndroid+MonoTouch\Validation.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="System.EnterpriseServices">
+      <Private>False</Private>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebActivator, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\WebActivator.1.5.2\lib\net40\WebActivator.dll</HintPath>
+    </Reference>
+    <Reference Include="WebGrease, Version=1.5.2.14234, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Yahoo.Yui.Compressor, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -283,41 +229,57 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Akismet.NET\Comment.cs" />
-    <Compile Include="Akismet.NET\IValidator.cs" />
-    <Compile Include="Akismet.NET\Validator.cs" />
+    <Compile Include="Application\ActionFilterAttributes\MustBeTrueAttribute.cs" />
+    <Compile Include="Application\Akismet\Comment.cs" />
+    <Compile Include="Application\Akismet\IValidator.cs" />
+    <Compile Include="Application\Akismet\Validator.cs" />
+    <Compile Include="Application\ActionFilterAttributes\NoSlash.cs" />
     <Compile Include="Application\AppHelpers.cs" />
     <Compile Include="Application\DatesUI.cs" />
+    <Compile Include="Application\ExtensionMethods\HtmlLabelExtensions.cs" />
     <Compile Include="Application\ForumMVCResourceDisplayName.cs" />
-    <Compile Include="Application\GoogleSitemapResult.cs" />
+    <Compile Include="Application\CustomActionResults\GoogleSitemapResult.cs" />
+    <Compile Include="Application\MemoryFile.cs" />
     <Compile Include="Application\MobileExtensions.cs" />
-    <Compile Include="Application\OpenID.cs" />
-    <Compile Include="Application\RssResult.cs" />
-    <Compile Include="Application\CsvFileResult.cs" />
-    <Compile Include="Application\Extensions.cs" />
-    <Compile Include="Application\ForumViewEngine.cs" />
+    <Compile Include="Application\RouteHandlers\SlugRouteHandler.cs" />
+    <Compile Include="Application\CustomActionResults\RssResult.cs" />
+    <Compile Include="Application\CustomActionResults\CsvFileResult.cs" />
+    <Compile Include="Application\ExtensionMethods\Extensions.cs" />
+    <Compile Include="Application\ScheduledJobs\MarkAsSolutionReminderJob.cs" />
+    <Compile Include="Application\StorageProviders\DiskStorageProvider.cs" />
+    <Compile Include="Application\StorageProviders\StorageProvider.cs" />
+    <Compile Include="Application\TypeFactory.cs" />
+    <Compile Include="Application\ViewEngine\ForumViewEngine.cs" />
     <Compile Include="Application\Localization\Localizer.cs" />
-    <Compile Include="Application\WrappedJSonResult.cs" />
-    <Compile Include="App_Start\AppStartUp.cs" />
-    <Compile Include="App_Start\RegisterClientValidationExtensions.cs" />
+    <Compile Include="Application\ServiceFactory.cs" />
+    <Compile Include="Application\CustomActionResults\WrappedJSonResult.cs" />
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\AccountController.cs" />
     <Compile Include="Areas\Admin\Controllers\AdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\AdminLanguageController.cs" />
     <Compile Include="Areas\Admin\Controllers\AdminBadgeController.cs" />
-    <Compile Include="Areas\Admin\Controllers\AdminLuceneController.cs" />
+    <Compile Include="Areas\Admin\Controllers\AdminSocialController.cs" />
+    <Compile Include="Areas\Admin\Controllers\AdminSpamController.cs" />
     <Compile Include="Areas\Admin\Controllers\BannedEmailController.cs" />
     <Compile Include="Areas\Admin\Controllers\BatchController.cs" />
     <Compile Include="Areas\Admin\Controllers\BannedWordController.cs" />
     <Compile Include="Areas\Admin\Controllers\DashboardController.cs" />
-    <Compile Include="Areas\Admin\Controllers\ModerateController.cs" />
+    <Compile Include="Controllers\ModerateController.cs" />
     <Compile Include="Areas\Admin\ViewModels\AdminBadgeViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\AjaxAdminViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\BannedEmailViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\BatchViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\BannedWordViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\DashboardViewModels.cs" />
-    <Compile Include="Controllers\BaseInstallController.cs" />
+    <Compile Include="Areas\Admin\ViewModels\SocialViewModels.cs" />
+    <Compile Include="Areas\Admin\ViewModels\SpamViewModels.cs" />
+    <Compile Include="Controllers\ApiControllers\TinyMcePluginsController.cs" />
     <Compile Include="Controllers\BadgeController.cs" />
     <Compile Include="Areas\Admin\Controllers\BaseAdminController.cs" />
     <Compile Include="Areas\Admin\Controllers\AdminCategoryController.cs" />
@@ -333,9 +295,14 @@
     <Compile Include="Areas\Admin\ViewModels\LogViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\PermissionsViewModels.cs" />
     <Compile Include="Areas\Admin\ViewModels\AdminTagViewModel.cs" />
+    <Compile Include="Controllers\BlockController.cs" />
     <Compile Include="Controllers\ClosedController.cs" />
     <Compile Include="Controllers\EmailController.cs" />
-    <Compile Include="Controllers\InstallController.cs" />
+    <Compile Include="Controllers\FavouriteController.cs" />
+    <Compile Include="Controllers\FileController.cs" />
+    <Compile Include="Controllers\OAuthControllers\FacebookOAuthController.cs" />
+    <Compile Include="Controllers\OAuthControllers\GoogleOAuthController.cs" />
+    <Compile Include="Controllers\OAuthControllers\MicrosoftOAuthController.cs" />
     <Compile Include="Controllers\PollController.cs" />
     <Compile Include="Controllers\PrivateMessageController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
@@ -352,14 +319,21 @@
     <Compile Include="Controllers\TopicController.cs" />
     <Compile Include="Controllers\UploadController.cs" />
     <Compile Include="Controllers\VoteController.cs" />
+    <Compile Include="Events\ExampleBeforeLogin.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Membership\MembershipProvider.cs" />
-    <Compile Include="Membership\RoleProvider.cs" />
+    <Compile Include="Application\Providers\MembershipProvider.cs" />
+    <Compile Include="Application\Providers\RoleProvider.cs" />
     <Compile Include="Areas\Admin\ViewModels\AccountViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Areas\Admin\ViewModels\ModerateViewModels.cs" />
+    <Compile Include="ViewModels\ModerateViewModels.cs" />
+    <Compile Include="Application\ScheduledJobs\ScheduledRunner.cs" />
+    <Compile Include="Application\ScheduledJobs\EmailJob.cs" />
+    <Compile Include="ViewModels\BlockViewModels.cs" />
+    <Compile Include="ViewModels\FavouriteViewModels.cs" />
+    <Compile Include="ViewModels\OAuth\FacebookOAuthData.cs" />
+    <Compile Include="ViewModels\OAuth\GoogleOAuthData.cs" />
     <Compile Include="ViewModels\UploadViewModels.cs" />
     <Compile Include="ViewModels\BadgeViewModels.cs" />
     <Compile Include="ViewModels\CategoryViewModels.cs" />
@@ -367,7 +341,7 @@
     <Compile Include="ViewModels\HomeViewModels.cs" />
     <Compile Include="ViewModels\InstallViewModels.cs" />
     <Compile Include="ViewModels\LanguageViewModels.cs" />
-    <Compile Include="Application\AkismetHelper.cs" />
+    <Compile Include="Application\Akismet\AkismetHelper.cs" />
     <Compile Include="ViewModels\Mapping\ViewModelMapping.cs" />
     <Compile Include="ViewModels\MemberViewModels.cs" />
     <Compile Include="ViewModels\PointViewModels.cs" />
@@ -381,9 +355,13 @@
     <Compile Include="Areas\Admin\ViewModels\SettingsViewModels.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\LogFile.txt" />
-    <Content Include="App_Data\lucene_index\NotHere.txt" />
-    <Content Include="Content\admin\Admin.css" />
+    <Content Include="App_Data\NuGetBackup\Hello.txt" />
+    <Content Include="Content\admin\Admin.css">
+      <DependentUpon>Admin.scss</DependentUpon>
+    </Content>
+    <Content Include="Content\admin\Admin.min.css">
+      <DependentUpon>Admin.css</DependentUpon>
+    </Content>
     <Content Include="Content\admin\Images\apple-touch-icon-57-precomposed.png" />
     <Content Include="Content\admin\Images\favicon.ico" />
     <Content Include="Content\admin\Images\ajax-loader.gif" />
@@ -644,18 +622,86 @@
     <Content Include="Content\admin\Images\icons\wooden-box.png" />
     <Content Include="Content\admin\Images\icons\yin-yang.png" />
     <Content Include="Content\admin\Images\icons\zone.png" />
+    <Content Include="Content\admin\Imports.css" />
+    <Content Include="Content\admin\sb-admin.css" />
+    <Content Include="Content\badges\jedi.png" />
     <Content Include="Content\badges\MemberForAYearBadge.png" />
     <Content Include="Content\badges\MentionsUmbracoBadge.png" />
     <Content Include="Content\badges\OneThousandPoints.png" />
     <Content Include="Content\badges\padawan.png" />
+    <Content Include="Content\badges\photogenic.png" />
     <Content Include="Content\badges\PosterMarkAsSolutionBadge.png" />
     <Content Include="Content\badges\PosterVoteUpBadge.png" />
+    <Content Include="Content\badges\recognised-post.png" />
     <Content Include="Content\badges\TheGrouch.png" />
     <Content Include="Content\badges\UserMarkAsSolutionBadge.png" />
     <Content Include="Content\badges\UserVoteUpBadge.png" />
+    <Content Include="Content\badges\you-favourited-your-first-post.png" />
+    <Content Include="Content\badges\your-post-got-favourited-by-another-member.png" />
+    <Content Include="Content\bootstrap\css\bootstrap-prettify.css" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap\css\bootstrap.css" />
+    <Content Include="Content\bootstrap\css\bootstrap.min.css" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\bootstrap\js\bootstrap.js" />
+    <Content Include="Content\bootstrap\js\bootstrap.min.js" />
+    <Content Include="Content\bootstrap\js\npm.js" />
     <Content Include="Content\cache\Cache.txt" />
     <Content Include="Content\Emails\EmailNotification.htm" />
+    <Content Include="Content\Images\ajaxloader-large.gif" />
+    <Content Include="Content\Images\ajaxloader.gif" />
     <Content Include="Content\Images\arrow-spinner-blue.gif" />
+    <Content Include="Content\Images\emoticons\angel-emoticon.png" />
+    <Content Include="Content\Images\emoticons\angry-emoticon.png" />
+    <Content Include="Content\Images\emoticons\astonished-smiley-emoticon-for-facebook.png" />
+    <Content Include="Content\Images\emoticons\big-smile-emoticon-for-facebook.png" />
+    <Content Include="Content\Images\emoticons\big-smile-with-closed-eyes.png" />
+    <Content Include="Content\Images\emoticons\cold-sweat-emoticon.png" />
+    <Content Include="Content\Images\emoticons\confused-emoticon-wtf-symbol-for-facebook.png" />
+    <Content Include="Content\Images\emoticons\crying-smiley.png" />
+    <Content Include="Content\Images\emoticons\curly-lips-emoticon.png" />
+    <Content Include="Content\Images\emoticons\devil-emoticon.png" />
+    <Content Include="Content\Images\emoticons\disappointed-emoticon-for-facebook-chat-status-and-comments.png" />
+    <Content Include="Content\Images\emoticons\dizzy-emoticon.png" />
+    <Content Include="Content\Images\emoticons\emoticon-crying-tears-of-joy.png" />
+    <Content Include="Content\Images\emoticons\emoticon-mocking--with-tongue-out.png" />
+    <Content Include="Content\Images\emoticons\emoticon-with-eyes-wide-open.png" />
+    <Content Include="Content\Images\emoticons\emoticon-with-look-of-triumph.png" />
+    <Content Include="Content\Images\emoticons\facebook-blush-emoticon.png" />
+    <Content Include="Content\Images\emoticons\facebook-comments-emoticon-with-heart-eyes.png" />
+    <Content Include="Content\Images\emoticons\facebook-cry-emoticon-crying-symbol.png" />
+    <Content Include="Content\Images\emoticons\facebook-emoticon--terrified-with-fear.png" />
+    <Content Include="Content\Images\emoticons\facebook-emoticon-crying-big-tears.png" />
+    <Content Include="Content\Images\emoticons\facebook-frown-emoticon.png" />
+    <Content Include="Content\Images\emoticons\facebook-smiley-face-for-comments.png" />
+    <Content Include="Content\Images\emoticons\facebook-tongue-out-emoticon.png" />
+    <Content Include="Content\Images\emoticons\fear-emoji.png" />
+    <Content Include="Content\Images\emoticons\glasses-emoticon.png" />
+    <Content Include="Content\Images\emoticons\grumpy-emoticon.png" />
+    <Content Include="Content\Images\emoticons\happy-smiley-blushing.png" />
+    <Content Include="Content\Images\emoticons\heart-smiley-for-facebook-status-and-comments.png" />
+    <Content Include="Content\Images\emoticons\kiki-emoticon.png" />
+    <Content Include="Content\Images\emoticons\kiss-emoticon.png" />
+    <Content Include="Content\Images\emoticons\mad-angry-emoticon-for-facebook.png" />
+    <Content Include="Content\Images\emoticons\medic-facebook-smiley.png" />
+    <Content Include="Content\Images\emoticons\pacman-emoticon.png" />
+    <Content Include="Content\Images\emoticons\red-angry-emoticon-for-facebook.png" />
+    <Content Include="Content\Images\emoticons\relieved-emoticon.png" />
+    <Content Include="Content\Images\emoticons\sad-face-symbol-for-facebook.png" />
+    <Content Include="Content\Images\emoticons\satisfied-smiley-face.png" />
+    <Content Include="Content\Images\emoticons\scared-emoticon.png" />
+    <Content Include="Content\Images\emoticons\sleepy-smiley.png" />
+    <Content Include="Content\Images\emoticons\smiling-face.png" />
+    <Content Include="Content\Images\emoticons\smirking-smiley.png" />
+    <Content Include="Content\Images\emoticons\squinting-emoticon.png" />
+    <Content Include="Content\Images\emoticons\sunglasses-emoticon.png" />
+    <Content Include="Content\Images\emoticons\surprised-emoticon.png" />
+    <Content Include="Content\Images\emoticons\tongue-out-winking-emoticon-for-facebook-comments-status-and-chat.png" />
+    <Content Include="Content\Images\emoticons\unamused-emoticon.png" />
+    <Content Include="Content\Images\emoticons\unsure-emoticon.png" />
+    <Content Include="Content\Images\emoticons\wink-emoticon.png" />
+    <Content Include="Content\Images\emoticons\winking-face-facebook-symbol.png" />
     <Content Include="Content\Images\icon-poll.png" />
     <Content Include="Content\Images\icon-sticky.png" />
     <Content Include="Content\Images\mail-add.png" />
@@ -703,122 +749,43 @@
     <Content Include="Content\Images\social-icons\xanga.png" />
     <Content Include="Content\Images\social-icons\yahoo.png" />
     <Content Include="Content\Images\social-icons\youtube.png" />
-    <Content Include="Content\Prettify\prettify.css" />
-    <Content Include="Content\Prettify\Themes\desert.css" />
-    <Content Include="Content\Prettify\Themes\doxy.css" />
-    <Content Include="Content\Prettify\Themes\sons-of-obsidian.css" />
-    <Content Include="Content\Prettify\Themes\sunburst.css" />
-    <Content Include="Content\Styles\bootstrap-prettify.css" />
-    <Content Include="Content\Styles\bootstrap-responsive.css" />
-    <Content Include="Content\Styles\bootstrap-responsive.min.css" />
-    <Content Include="Content\Styles\bootstrap.css" />
-    <Content Include="Content\Styles\bootstrap.min.css" />
-    <Content Include="Content\Styles\images\glyphicons-halflings-white.png" />
-    <Content Include="Content\Styles\images\glyphicons-halflings.png" />
-    <Content Include="Content\themes\base\images\animated-overlay.gif" />
-    <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <Content Include="Content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="Content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="Content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="Content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <Content Include="Content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <Content Include="Content\themes\base\images\ui-icons_222222_256x240.png" />
-    <Content Include="Content\themes\base\images\ui-icons_2e83ff_256x240.png" />
-    <Content Include="Content\themes\base\images\ui-icons_454545_256x240.png" />
-    <Content Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
-    <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
-    <Content Include="Content\themes\base\jquery-ui.css" />
-    <Content Include="Content\themes\base\jquery.ui.accordion.css" />
-    <Content Include="Content\themes\base\jquery.ui.all.css" />
-    <Content Include="Content\themes\base\jquery.ui.autocomplete.css" />
-    <Content Include="Content\themes\base\jquery.ui.base.css" />
-    <Content Include="Content\themes\base\jquery.ui.button.css" />
-    <Content Include="Content\themes\base\jquery.ui.core.css" />
-    <Content Include="Content\themes\base\jquery.ui.datepicker.css" />
-    <Content Include="Content\themes\base\jquery.ui.dialog.css" />
-    <Content Include="Content\themes\base\jquery.ui.menu.css" />
-    <Content Include="Content\themes\base\jquery.ui.progressbar.css" />
-    <Content Include="Content\themes\base\jquery.ui.resizable.css" />
-    <Content Include="Content\themes\base\jquery.ui.selectable.css" />
-    <Content Include="Content\themes\base\jquery.ui.slider.css" />
-    <Content Include="Content\themes\base\jquery.ui.spinner.css" />
-    <Content Include="Content\themes\base\jquery.ui.tabs.css" />
-    <Content Include="Content\themes\base\jquery.ui.theme.css" />
-    <Content Include="Content\themes\base\jquery.ui.tooltip.css" />
-    <Content Include="Content\themes\base\minified\images\animated-overlay.gif" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <Content Include="Content\themes\base\minified\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <Content Include="Content\themes\base\minified\images\ui-icons_222222_256x240.png" />
-    <Content Include="Content\themes\base\minified\images\ui-icons_2e83ff_256x240.png" />
-    <Content Include="Content\themes\base\minified\images\ui-icons_454545_256x240.png" />
-    <Content Include="Content\themes\base\minified\images\ui-icons_888888_256x240.png" />
-    <Content Include="Content\themes\base\minified\images\ui-icons_cd0a0a_256x240.png" />
-    <Content Include="Content\themes\base\minified\jquery-ui.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.accordion.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.autocomplete.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.button.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.core.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.datepicker.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.dialog.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.menu.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.progressbar.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.resizable.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.selectable.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.spinner.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
-    <Content Include="Content\themes\base\minified\jquery.ui.tooltip.min.css" />
+    <Content Include="Content\jstree\jstree.js" />
+    <Content Include="Content\jstree\jstree.min.js" />
+    <Content Include="Content\jstree\themes\default\30px.png" />
+    <Content Include="Content\jstree\themes\default\32px.png" />
+    <Content Include="Content\jstree\themes\default\40px.png" />
+    <Content Include="Content\jstree\themes\default\style.css" />
+    <Content Include="Content\jstree\themes\default\style.min.css" />
+    <Content Include="Content\jstree\themes\default\throbber.gif" />
+    <Content Include="Content\jstree\themes\proton\30px.png" />
+    <Content Include="Content\jstree\themes\proton\32px.png" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-bold-webfont.svg" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-extralight-webfont.svg" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-regular-webfont.svg" />
+    <Content Include="Content\jstree\themes\proton\style.css" />
+    <Content Include="Content\jstree\themes\proton\style.min.css" />
+    <Content Include="Content\jstree\themes\proton\throbber.gif" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-de.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-dk.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-es.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-fa.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-fi.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-fr.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-he.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-it.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-ja.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-nl.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-pt-br.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-ru.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-sv.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-tr.js" />
+    <Content Include="Content\spectrum\i18n\jquery.spectrum-zh-cn.js" />
+    <Content Include="Content\spectrum\spectrum.css" />
+    <Content Include="Content\spectrum\spectrum.js" />
+    <Content Include="Content\tinymce.css" />
     <Content Include="Content\uploads\readme.txt" />
-    <Content Include="Installer\Content\arrow-spinner-blue.gif" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_009_magic.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_042_group.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_079_podium.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_082_roundabout.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_155_show_thumbnails.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_163_iphone.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_214_resize_small.png" />
-    <Content Include="Installer\Content\Images\glyphicons\glyphicons_266_book_open.png" />
-    <Content Include="Installer\Content\Images\logo.png" />
-    <Content Include="Installer\Content\Scripts\general.js" />
-    <Content Include="Installer\Content\Styles\bootstrap.css" />
-    <Content Include="Installer\Content\Styles\install.css" />
-    <Content Include="Installer\Db\1.0\database.sql" />
-    <Content Include="Installer\Db\1.1\database.sql" />
-    <Content Include="Installer\Db\1.2\database.sql" />
-    <Content Include="Installer\Db\1.2\Upgrade\upgrade.sql" />
-    <Content Include="Installer\Db\1.3\database.sql" />
-    <Content Include="Installer\Db\1.5\database.sql" />
-    <Content Include="Installer\Db\1.5\Upgrade\upgrade.sql" />
-    <Content Include="Installer\Db\1.4\database.sql" />
-    <Content Include="Installer\Db\1.4\Upgrade\upgrade.sql" />
-    <Content Include="Scripts\angular-animate.js" />
-    <Content Include="Scripts\angular-animate.min.js" />
-    <Content Include="Scripts\angular-cookies.js" />
-    <Content Include="Scripts\angular-cookies.min.js" />
-    <Content Include="Scripts\angular-csp.css" />
-    <Content Include="Scripts\angular-loader.js" />
-    <Content Include="Scripts\angular-loader.min.js" />
-    <Content Include="Scripts\angular-mocks.js" />
-    <Content Include="Scripts\angular-resource.js" />
-    <Content Include="Scripts\angular-resource.min.js" />
-    <Content Include="Scripts\angular-route.js" />
-    <Content Include="Scripts\angular-route.min.js" />
-    <Content Include="Scripts\angular-sanitize.js" />
-    <Content Include="Scripts\angular-sanitize.min.js" />
-    <Content Include="Scripts\angular-scenario.js" />
-    <Content Include="Scripts\angular-touch.js" />
-    <Content Include="Scripts\angular-touch.min.js" />
-    <Content Include="Scripts\angular.js" />
-    <Content Include="Scripts\angular.min.js" />
+    <Content Include="Installer\ManualSql\manualVersionOneSevenToOneEight.sql" />
+    <Content Include="Scripts\badges.js" />
     <Content Include="Scripts\bbeditor\emoticons\alien.png" />
     <Content Include="Scripts\bbeditor\emoticons\angel.png" />
     <Content Include="Scripts\bbeditor\emoticons\angry.png" />
@@ -866,287 +833,25 @@
     <Content Include="Scripts\bbeditor\themes\office-toolbar.min.css" />
     <Content Include="Scripts\bbeditor\themes\office.min.css" />
     <Content Include="Scripts\bbeditor\themes\square.min.css" />
-    <Content Include="Scripts\bootstrap-prettify.js" />
-    <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Content\bootstrap\js\bootstrap-prettify.js" />
     <Content Include="Scripts\cache\Cache.txt" />
-    <Content Include="Areas\Admin\Views\Moderate\Index.cshtml" />
-    <Content Include="Areas\Admin\Views\Moderate\GetMoreTopics.cshtml" />
-    <Content Include="Areas\Admin\Views\Moderate\GetMorePosts.cshtml" />
-    <Content Include="Scripts\bbeditor\themes\monocons\monocons.eot" />
-    <Content Include="Scripts\bbeditor\themes\monocons\monocons.ttf" />
-    <Content Include="Scripts\errors.json" />
-    <Content Include="Scripts\angular-touch.min.js.map" />
-    <Content Include="Scripts\angular-sanitize.min.js.map" />
-    <Content Include="Scripts\angular-route.min.js.map" />
-    <Content Include="Scripts\angular-resource.min.js.map" />
-    <Content Include="Scripts\angular-loader.min.js.map" />
-    <Content Include="Scripts\angular-cookies.min.js.map" />
-    <Content Include="Scripts\angular-animate.min.js.map" />
-    <Content Include="Scripts\angular.min.js.map" />
-    <Content Include="Content\languagepacks\de-DE.csv" />
-    <Content Include="Content\languagepacks\fa-IR.csv" />
-    <None Include="Scripts\jquery-2.0.1.intellisense.js" />
-    <Content Include="Scripts\i18n\angular-locale_af-na.js" />
-    <Content Include="Scripts\i18n\angular-locale_af-za.js" />
-    <Content Include="Scripts\i18n\angular-locale_af.js" />
-    <Content Include="Scripts\i18n\angular-locale_am-et.js" />
-    <Content Include="Scripts\i18n\angular-locale_am.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-001.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-ae.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-bh.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-dz.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-eg.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-iq.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-jo.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-kw.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-lb.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-ly.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-ma.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-om.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-qa.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-sa.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-sd.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-sy.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-tn.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar-ye.js" />
-    <Content Include="Scripts\i18n\angular-locale_ar.js" />
-    <Content Include="Scripts\i18n\angular-locale_bg-bg.js" />
-    <Content Include="Scripts\i18n\angular-locale_bg.js" />
-    <Content Include="Scripts\i18n\angular-locale_bn-bd.js" />
-    <Content Include="Scripts\i18n\angular-locale_bn-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_bn.js" />
-    <Content Include="Scripts\i18n\angular-locale_ca-ad.js" />
-    <Content Include="Scripts\i18n\angular-locale_ca-es.js" />
-    <Content Include="Scripts\i18n\angular-locale_ca.js" />
-    <Content Include="Scripts\i18n\angular-locale_cs-cz.js" />
-    <Content Include="Scripts\i18n\angular-locale_cs.js" />
-    <Content Include="Scripts\i18n\angular-locale_da-dk.js" />
-    <Content Include="Scripts\i18n\angular-locale_da.js" />
-    <Content Include="Scripts\i18n\angular-locale_de-at.js" />
-    <Content Include="Scripts\i18n\angular-locale_de-be.js" />
-    <Content Include="Scripts\i18n\angular-locale_de-ch.js" />
-    <Content Include="Scripts\i18n\angular-locale_de-de.js" />
-    <Content Include="Scripts\i18n\angular-locale_de-li.js" />
-    <Content Include="Scripts\i18n\angular-locale_de-lu.js" />
-    <Content Include="Scripts\i18n\angular-locale_de.js" />
-    <Content Include="Scripts\i18n\angular-locale_el-cy.js" />
-    <Content Include="Scripts\i18n\angular-locale_el-gr.js" />
-    <Content Include="Scripts\i18n\angular-locale_el.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-as.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-au.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-bb.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-be.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-bm.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-bw.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-bz.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-ca.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-dsrt-us.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-dsrt.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-fm.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-gb.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-gu.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-gy.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-hk.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-ie.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-iso.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-jm.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-mh.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-mp.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-mt.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-mu.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-na.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-nz.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-ph.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-pk.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-pr.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-pw.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-sg.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-tc.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-tt.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-um.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-us.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-vg.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-vi.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-za.js" />
-    <Content Include="Scripts\i18n\angular-locale_en-zw.js" />
-    <Content Include="Scripts\i18n\angular-locale_en.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-419.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-ar.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-bo.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-cl.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-co.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-cr.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-do.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-ea.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-ec.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-es.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-gq.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-gt.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-hn.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-ic.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-mx.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-ni.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-pa.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-pe.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-pr.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-py.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-sv.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-us.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-uy.js" />
-    <Content Include="Scripts\i18n\angular-locale_es-ve.js" />
-    <Content Include="Scripts\i18n\angular-locale_es.js" />
-    <Content Include="Scripts\i18n\angular-locale_et-ee.js" />
-    <Content Include="Scripts\i18n\angular-locale_et.js" />
-    <Content Include="Scripts\i18n\angular-locale_eu-es.js" />
-    <Content Include="Scripts\i18n\angular-locale_eu.js" />
-    <Content Include="Scripts\i18n\angular-locale_fa-af.js" />
-    <Content Include="Scripts\i18n\angular-locale_fa-ir.js" />
-    <Content Include="Scripts\i18n\angular-locale_fa.js" />
-    <Content Include="Scripts\i18n\angular-locale_fi-fi.js" />
-    <Content Include="Scripts\i18n\angular-locale_fi.js" />
-    <Content Include="Scripts\i18n\angular-locale_fil-ph.js" />
-    <Content Include="Scripts\i18n\angular-locale_fil.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-be.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-bf.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-bi.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-bj.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-bl.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-ca.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-cd.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-cf.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-cg.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-ch.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-ci.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-cm.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-dj.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-fr.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-ga.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-gf.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-gn.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-gp.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-gq.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-km.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-lu.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-mc.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-mf.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-mg.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-ml.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-mq.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-ne.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-re.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr-yt.js" />
-    <Content Include="Scripts\i18n\angular-locale_fr.js" />
-    <Content Include="Scripts\i18n\angular-locale_gl-es.js" />
-    <Content Include="Scripts\i18n\angular-locale_gl.js" />
-    <Content Include="Scripts\i18n\angular-locale_gsw-ch.js" />
-    <Content Include="Scripts\i18n\angular-locale_gsw.js" />
-    <Content Include="Scripts\i18n\angular-locale_gu-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_gu.js" />
-    <Content Include="Scripts\i18n\angular-locale_he-il.js" />
-    <Content Include="Scripts\i18n\angular-locale_he.js" />
-    <Content Include="Scripts\i18n\angular-locale_hi-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_hi.js" />
-    <Content Include="Scripts\i18n\angular-locale_hr-hr.js" />
-    <Content Include="Scripts\i18n\angular-locale_hr.js" />
-    <Content Include="Scripts\i18n\angular-locale_hu-hu.js" />
-    <Content Include="Scripts\i18n\angular-locale_hu.js" />
-    <Content Include="Scripts\i18n\angular-locale_id-id.js" />
-    <Content Include="Scripts\i18n\angular-locale_id.js" />
-    <Content Include="Scripts\i18n\angular-locale_in.js" />
-    <Content Include="Scripts\i18n\angular-locale_is-is.js" />
-    <Content Include="Scripts\i18n\angular-locale_is.js" />
-    <Content Include="Scripts\i18n\angular-locale_it-it.js" />
-    <Content Include="Scripts\i18n\angular-locale_it-sm.js" />
-    <Content Include="Scripts\i18n\angular-locale_it.js" />
-    <Content Include="Scripts\i18n\angular-locale_iw.js" />
-    <Content Include="Scripts\i18n\angular-locale_ja-jp.js" />
-    <Content Include="Scripts\i18n\angular-locale_ja.js" />
-    <Content Include="Scripts\i18n\angular-locale_kn-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_kn.js" />
-    <Content Include="Scripts\i18n\angular-locale_ko-kr.js" />
-    <Content Include="Scripts\i18n\angular-locale_ko.js" />
-    <Content Include="Scripts\i18n\angular-locale_ln-cd.js" />
-    <Content Include="Scripts\i18n\angular-locale_ln.js" />
-    <Content Include="Scripts\i18n\angular-locale_lt-lt.js" />
-    <Content Include="Scripts\i18n\angular-locale_lt.js" />
-    <Content Include="Scripts\i18n\angular-locale_lv-lv.js" />
-    <Content Include="Scripts\i18n\angular-locale_lv.js" />
-    <Content Include="Scripts\i18n\angular-locale_ml-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_ml.js" />
-    <Content Include="Scripts\i18n\angular-locale_mr-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_mr.js" />
-    <Content Include="Scripts\i18n\angular-locale_ms-my.js" />
-    <Content Include="Scripts\i18n\angular-locale_ms.js" />
-    <Content Include="Scripts\i18n\angular-locale_mt-mt.js" />
-    <Content Include="Scripts\i18n\angular-locale_mt.js" />
-    <Content Include="Scripts\i18n\angular-locale_nl-cw.js" />
-    <Content Include="Scripts\i18n\angular-locale_nl-nl.js" />
-    <Content Include="Scripts\i18n\angular-locale_nl-sx.js" />
-    <Content Include="Scripts\i18n\angular-locale_nl.js" />
-    <Content Include="Scripts\i18n\angular-locale_no.js" />
-    <Content Include="Scripts\i18n\angular-locale_or-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_or.js" />
-    <Content Include="Scripts\i18n\angular-locale_pl-pl.js" />
-    <Content Include="Scripts\i18n\angular-locale_pl.js" />
-    <Content Include="Scripts\i18n\angular-locale_pt-br.js" />
-    <Content Include="Scripts\i18n\angular-locale_pt-pt.js" />
-    <Content Include="Scripts\i18n\angular-locale_pt.js" />
-    <Content Include="Scripts\i18n\angular-locale_ro-ro.js" />
-    <Content Include="Scripts\i18n\angular-locale_ro.js" />
-    <Content Include="Scripts\i18n\angular-locale_ru-ru.js" />
-    <Content Include="Scripts\i18n\angular-locale_ru.js" />
-    <Content Include="Scripts\i18n\angular-locale_sk-sk.js" />
-    <Content Include="Scripts\i18n\angular-locale_sk.js" />
-    <Content Include="Scripts\i18n\angular-locale_sl-si.js" />
-    <Content Include="Scripts\i18n\angular-locale_sl.js" />
-    <Content Include="Scripts\i18n\angular-locale_sq-al.js" />
-    <Content Include="Scripts\i18n\angular-locale_sq.js" />
-    <Content Include="Scripts\i18n\angular-locale_sr-cyrl-rs.js" />
-    <Content Include="Scripts\i18n\angular-locale_sr-latn-rs.js" />
-    <Content Include="Scripts\i18n\angular-locale_sr.js" />
-    <Content Include="Scripts\i18n\angular-locale_sv-se.js" />
-    <Content Include="Scripts\i18n\angular-locale_sv.js" />
-    <Content Include="Scripts\i18n\angular-locale_sw-tz.js" />
-    <Content Include="Scripts\i18n\angular-locale_sw.js" />
-    <Content Include="Scripts\i18n\angular-locale_ta-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_ta.js" />
-    <Content Include="Scripts\i18n\angular-locale_te-in.js" />
-    <Content Include="Scripts\i18n\angular-locale_te.js" />
-    <Content Include="Scripts\i18n\angular-locale_th-th.js" />
-    <Content Include="Scripts\i18n\angular-locale_th.js" />
-    <Content Include="Scripts\i18n\angular-locale_tl.js" />
-    <Content Include="Scripts\i18n\angular-locale_tr-tr.js" />
-    <Content Include="Scripts\i18n\angular-locale_tr.js" />
-    <Content Include="Scripts\i18n\angular-locale_uk-ua.js" />
-    <Content Include="Scripts\i18n\angular-locale_uk.js" />
-    <Content Include="Scripts\i18n\angular-locale_ur-pk.js" />
-    <Content Include="Scripts\i18n\angular-locale_ur.js" />
-    <Content Include="Scripts\i18n\angular-locale_vi-vn.js" />
-    <Content Include="Scripts\i18n\angular-locale_vi.js" />
-    <Content Include="Scripts\i18n\angular-locale_zh-cn.js" />
-    <Content Include="Scripts\i18n\angular-locale_zh-hans-cn.js" />
-    <Content Include="Scripts\i18n\angular-locale_zh-hk.js" />
-    <Content Include="Scripts\i18n\angular-locale_zh-tw.js" />
-    <Content Include="Scripts\i18n\angular-locale_zh.js" />
-    <Content Include="Scripts\i18n\angular-locale_zu-za.js" />
-    <Content Include="Scripts\i18n\angular-locale_zu.js" />
-    <Content Include="Scripts\jquery-2.0.1.js" />
-    <Content Include="Scripts\jquery-2.0.1.min.js" />
-    <Content Include="Scripts\jquery-ui-1.10.3.js" />
-    <Content Include="Scripts\jquery-ui-1.10.3.min.js" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.min.css.map" />
+    <Content Include="Content\bootstrap\css\bootstrap.min.css.map" />
+    <None Include="Scripts\jquery-3.1.0.intellisense.js" />
+    <Content Include="Scripts\jquery-3.1.0.js" />
+    <Content Include="Scripts\jquery-3.1.0.min.js" />
+    <Content Include="Scripts\jquery-3.1.0.slim.js" />
+    <Content Include="Scripts\jquery-3.1.0.slim.min.js" />
+    <Content Include="Scripts\jquery-3.1.0.slim.min.map" />
+    <Content Include="Scripts\jquery-3.1.0.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
-    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
-    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
-    <Content Include="Scripts\json2.js" />
-    <Content Include="Scripts\json3.js" />
-    <Content Include="Scripts\markdown\node-pagedown.js" />
+    <Content Include="Scripts\tinymce\jquery.tinymce.min.js" />
+    <Content Include="Scripts\tinymce\license.txt" />
+    <Content Include="Scripts\tinymce\plugins\advlist\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\advlist\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\anchor\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\anchor\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\autolink\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\autolink\plugin.min.js" />
@@ -1158,8 +863,13 @@
     <Content Include="Scripts\tinymce\plugins\bbcode\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\charmap\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\charmap\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\codesample\css\prism.css" />
+    <Content Include="Scripts\tinymce\plugins\codesample\plugin.js" />
+    <Content Include="Scripts\tinymce\plugins\codesample\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\code\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\code\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\colorpicker\plugin.js" />
+    <Content Include="Scripts\tinymce\plugins\colorpicker\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\compat3x\css\dialog.css" />
     <Content Include="Scripts\tinymce\plugins\compat3x\img\buttons.png" />
     <Content Include="Scripts\tinymce\plugins\compat3x\img\icons.gif" />
@@ -1206,13 +916,17 @@
     <Content Include="Scripts\tinymce\plugins\fullpage\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\fullscreen\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\fullscreen\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\hr\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\hr\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\imagetools\plugin.js" />
+    <Content Include="Scripts\tinymce\plugins\imagetools\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\image\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\image\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\importcss\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\importcss\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\insertdatetime\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\insertdatetime\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\layer\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\layer\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\legacyoutput\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\legacyoutput\plugin.min.js" />
@@ -1220,6 +934,7 @@
     <Content Include="Scripts\tinymce\plugins\link\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\lists\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\lists\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\media\moxieplayer.swf" />
     <Content Include="Scripts\tinymce\plugins\media\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\media\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\nonbreaking\plugin.js" />
@@ -1228,44 +943,35 @@
     <Content Include="Scripts\tinymce\plugins\noneditable\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\pagebreak\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\pagebreak\plugin.min.js" />
-    <Content Include="Scripts\tinymce\plugins\paste\classes\Clipboard.js" />
-    <Content Include="Scripts\tinymce\plugins\paste\classes\Plugin.js" />
-    <Content Include="Scripts\tinymce\plugins\paste\classes\Quirks.js" />
-    <Content Include="Scripts\tinymce\plugins\paste\classes\Utils.js" />
-    <Content Include="Scripts\tinymce\plugins\paste\classes\WordFilter.js" />
-    <Content Include="Scripts\tinymce\plugins\paste\plugin.dev.js" />
     <Content Include="Scripts\tinymce\plugins\paste\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\paste\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\preview\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\preview\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\print\plugin.js" />
+    <Content Include="Scripts\tinymce\plugins\print\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\save\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\save\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\searchreplace\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\searchreplace\plugin.min.js" />
-    <Content Include="Scripts\tinymce\plugins\spellchecker\classes\DomTextMatcher.js" />
-    <Content Include="Scripts\tinymce\plugins\spellchecker\classes\Plugin.js" />
-    <Content Include="Scripts\tinymce\plugins\spellchecker\plugin.dev.js" />
     <Content Include="Scripts\tinymce\plugins\spellchecker\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\spellchecker\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\tabfocus\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\tabfocus\plugin.min.js" />
-    <Content Include="Scripts\tinymce\plugins\table\classes\CellSelection.js" />
-    <Content Include="Scripts\tinymce\plugins\table\classes\Plugin.js" />
-    <Content Include="Scripts\tinymce\plugins\table\classes\Quirks.js" />
-    <Content Include="Scripts\tinymce\plugins\table\classes\TableGrid.js" />
-    <Content Include="Scripts\tinymce\plugins\table\plugin.dev.js" />
     <Content Include="Scripts\tinymce\plugins\table\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\table\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\template\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\template\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\textcolor\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\textcolor\plugin.min.js" />
+    <Content Include="Scripts\tinymce\plugins\textpattern\plugin.js" />
+    <Content Include="Scripts\tinymce\plugins\textpattern\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\css\visualblocks.css" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\address.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\article.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\aside.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\blockquote.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\div.gif" />
+    <Content Include="Scripts\tinymce\plugins\visualblocks\img\dl.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\figure.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\h1.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\h2.gif" />
@@ -1279,6 +985,7 @@
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\pre.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\section.gif" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\img\ul.gif" />
+    <Content Include="Scripts\tinymce\plugins\visualblocks\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\visualblocks\plugin.min.js" />
     <Content Include="Scripts\tinymce\plugins\visualchars\plugin.js" />
     <Content Include="Scripts\tinymce\plugins\visualchars\plugin.min.js" />
@@ -1288,30 +995,188 @@
     <Content Include="Scripts\tinymce\skins\lightgray\content.min.css" />
     <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.svg" />
     <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.svg" />
+    <Content Include="Scripts\tinymce\skins\lightgray\img\anchor.gif" />
+    <Content Include="Scripts\tinymce\skins\lightgray\img\loader.gif" />
+    <Content Include="Scripts\tinymce\skins\lightgray\img\object.gif" />
+    <Content Include="Scripts\tinymce\skins\lightgray\img\trans.gif" />
     <Content Include="Scripts\tinymce\skins\lightgray\skin.ie7.min.css" />
     <Content Include="Scripts\tinymce\skins\lightgray\skin.min.css" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\atomic.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\bootstrap-atomic.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\bootstrap-browser.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\bootstrap-demo.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\bootstrap-prod.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\browser.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\demo.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\bolt\prod.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\config\dent\depend.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\scratch\compile\bootstrap.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\scratch\compile\theme.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\scratch\inline\theme.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\scratch\inline\theme.raw.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\demo\css\demo.css" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\demo\html\demo.html" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\demo\js\tinymce\inlite\Demo.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\alien\Arr.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\alien\Bookmark.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\alien\Unlink.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\alien\Uuid.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\Actions.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\Convert.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\ElementMatcher.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\Layout.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\Matcher.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\Measure.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\PredicateId.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\SelectionMatcher.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\SkinLoader.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\core\UrlType.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\file\Conversions.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\file\Picker.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\Theme.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\ui\Buttons.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\ui\Forms.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\ui\Panel.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\main\js\tinymce\inlite\ui\Toolbar.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\atomic\alien\ArrTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\atomic\alien\UuidTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\atomic\core\ConvertTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\atomic\core\MatcherTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\atomic\core\UrlTypeTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\alien\BookmarkTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\alien\UnlinkTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\core\ActionsTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\core\ElementMatcher.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\core\LayoutTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\core\MeasureTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\core\PredicateIdTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\core\SelectionMatcherTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\file\ConversionsTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\file\SelectionMatcher.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\src\test\js\browser\ThemeTest.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\theme.js" />
+    <Content Include="Scripts\tinymce\themes\inlite\theme.min.js" />
     <Content Include="Scripts\tinymce\themes\modern\theme.js" />
     <Content Include="Scripts\tinymce\themes\modern\theme.min.js" />
     <Content Include="Scripts\tinymce\tinymce.js" />
     <Content Include="Scripts\tinymce\tinymce.min.js" />
-    <Content Include="Scripts\topic.js" />
+    <Content Include="Themes\Metro\Content\Styles\Theme.min.css" />
+    <Content Include="Views\Moderate\Index.cshtml" />
+    <Content Include="Views\Moderate\GetMoreTopics.cshtml" />
+    <Content Include="Views\Moderate\GetMorePosts.cshtml" />
+    <Content Include="Scripts\bbeditor\themes\monocons\monocons.eot" />
+    <Content Include="Scripts\bbeditor\themes\monocons\monocons.ttf" />
+    <Content Include="Content\bootstrap\css\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap\css\bootstrap.css.map" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Areas\Admin\Views\Shared\_AdminScripts.cshtml" />
+    <Content Include="Areas\Admin\Views\Shared\_AdminTopNav.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminCategory\_CategoryFields.cshtml" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-bold-webfont.eot" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-bold-webfont.ttf" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-bold-webfont.woff" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-extralight-webfont.eot" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-extralight-webfont.ttf" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-extralight-webfont.woff" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-regular-webfont.eot" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-regular-webfont.ttf" />
+    <Content Include="Content\jstree\themes\proton\fonts\titillium\titilliumweb-regular-webfont.woff" />
+    <Content Include="Areas\Admin\Views\AdminCategory\_CategoryNavButtons.cshtml" />
+    <Content Include="Areas\Admin\Views\Permissions\PermissionTypes.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminLanguage\Create.cshtml" />
+    <Content Include="Content\bootstrap\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Content\admin\Admin.scss" />
+    <Content Include="Content\admin\Admin.css.map">
+      <DependentUpon>Admin.css</DependentUpon>
+    </Content>
+    <Content Include="Areas\Admin\Views\Dashboard\MainAdminNav.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminSocial\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminSpam\Akismet.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminSpam\RegistrationQuestion.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminSpam\SpamReporting.cshtml" />
+    <Content Include="Areas\Admin\Views\Settings\CustomCode.cshtml" />
+    <Content Include="Areas\Admin\Views\AdminTag\MoveTags.cshtml" />
+    <Content Include="Scripts\language.js" />
+    <Content Include="Scripts\notifications.js" />
+    <Content Include="Scripts\plugins.js" />
+    <Content Include="Scripts\privatemessage.js" />
+    <Content Include="Scripts\slideoutpanel.js" />
+    <Content Include="Scripts\tinymceplugins\ImageUpload\imageupload.js" />
+    <Content Include="Views\Shared\_SlideOutPanel.cshtml" />
+    <Content Include="Views\Post\GetAllPostLikes.cshtml" />
+    <Content Include="Views\File\ImageUploadTinyMce.cshtml" />
+    <Content Include="Views\Shared\_StyleSheets.cshtml" />
+    <Content Include="Views\Shared\_JavaScript.cshtml" />
+    <Content Include="Views\Shared\_PostLikedBy.cshtml" />
+    <Content Include="Views\PrivateMessage\AjaxMore.cshtml" />
+    <Content Include="Areas\Admin\Views\Batch\BatchDeletePrivateMessages.cshtml" />
+    <Content Include="App_Data\forum.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\Post\MovePost.cshtml" />
+    <Content Include="Themes\Metro\Content\Styles\Theme.scss" />
+    <Content Include="Views\Home\TermsAndConditions.cshtml" />
+    <Content Include="Views\Post\GetPostEditHistory.cshtml" />
+    <Content Include="Areas\Admin\Views\Account\ManageUserPoints.cshtml" />
+    <Content Include="Themes\Metro\Content\Styles\Theme.css.map" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.woff" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.ttf" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.json" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.eot" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.woff" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.ttf" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.json" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.eot" />
+    <Content Include="Scripts\tinymce\skins\lightgray\fonts\readme.md" />
+    <Content Include="Scripts\tinymce\langs\readme.md" />
+    <None Include="_bin_deployableAssemblies\x86\sqlcese40.dll" />
+    <None Include="_bin_deployableAssemblies\x86\sqlceqp40.dll" />
+    <None Include="_bin_deployableAssemblies\x86\sqlceme40.dll" />
+    <None Include="_bin_deployableAssemblies\x86\sqlceer40EN.dll" />
+    <None Include="_bin_deployableAssemblies\x86\sqlcecompact40.dll" />
+    <None Include="_bin_deployableAssemblies\x86\sqlceca40.dll" />
+    <None Include="_bin_deployableAssemblies\x86\Microsoft.VC90.CRT\README_ENU.txt" />
+    <None Include="_bin_deployableAssemblies\x86\Microsoft.VC90.CRT\msvcr90.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\sqlcese40.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\sqlceqp40.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\sqlceme40.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\sqlceer40EN.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\sqlcecompact40.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\sqlceca40.dll" />
+    <None Include="_bin_deployableAssemblies\amd64\Microsoft.VC90.CRT\README_ENU.txt" />
+    <None Include="_bin_deployableAssemblies\amd64\Microsoft.VC90.CRT\msvcr90.dll" />
+    <None Include="job_scheduling_data_2_0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\PublishProfiles\Local Deployment.pubxml" />
+    <Content Include="Scripts\jquery-ui.min.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\json2.js" />
+    <Content Include="Scripts\json3.js" />
+    <Content Include="Scripts\markdown\node-pagedown.js" />
+    <Content Include="Scripts\pushy\pushy.css" />
+    <Content Include="Scripts\pushy\pushy.js" />
+    <Content Include="Scripts\createtopic.js" />
+    <Content Include="Scripts\topic-post.js" />
     <Content Include="Scripts\dashboard.js" />
     <Content Include="Scripts\bbeditor\jquery.sceditor.default.min.css" />
     <Content Include="Scripts\bbeditor\jquery.sceditor.min.css" />
     <Content Include="Scripts\bbeditor\jquery.sceditor.min.js" />
     <Content Include="Scripts\bbeditor\jquery.sceditor.min.png" />
-    <Content Include="Scripts\jquery-1.8.0.min.js" />
     <Content Include="Areas\Admin\Views\Settings\TestEmail.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\_GetCurrentVersion.cshtml" />
     <Content Include="Areas\Admin\Views\Dashboard\TodaysTopics.cshtml" />
     <Content Include="Installer\en-GB.csv" />
-    <Content Include="Areas\Admin\Views\Batch\Index.cshtml" />
     <Content Include="Areas\Admin\Views\Batch\BatchDeleteMembers.cshtml" />
     <Content Include="Areas\Admin\Views\Batch\BatchMoveTopics.cshtml" />
     <Content Include="Areas\Admin\Views\BannedEmail\Index.cshtml" />
     <Content Include="Areas\Admin\Views\BannedWord\Index.cshtml" />
     <Content Include="Scripts\jquery.placeholder.min.js" />
-    <Content Include="Scripts\jquery-2.0.1.min.map" />
     <Content Include="Scripts\markdown\Markdown.Converter.js" />
     <Content Include="Scripts\markdown\markdown.css" />
     <Content Include="Scripts\markdown\Markdown.Editor.js" />
@@ -1319,133 +1184,16 @@
     <Content Include="Scripts\markdown\wmd-buttons.png" />
     <Content Include="Scripts\memberprofiles.js" />
     <Content Include="Scripts\leaderboard.js" />
-    <Content Include="Scripts\Prettify\lang-apollo.js" />
-    <Content Include="Scripts\Prettify\lang-basic.js" />
-    <Content Include="Scripts\Prettify\lang-clj.js" />
-    <Content Include="Scripts\Prettify\lang-css.js" />
-    <Content Include="Scripts\Prettify\lang-dart.js" />
-    <Content Include="Scripts\Prettify\lang-erlang.js" />
-    <Content Include="Scripts\Prettify\lang-go.js" />
-    <Content Include="Scripts\Prettify\lang-hs.js" />
-    <Content Include="Scripts\Prettify\lang-lisp.js" />
-    <Content Include="Scripts\Prettify\lang-llvm.js" />
-    <Content Include="Scripts\Prettify\lang-lua.js" />
-    <Content Include="Scripts\Prettify\lang-matlab.js" />
-    <Content Include="Scripts\Prettify\lang-ml.js" />
-    <Content Include="Scripts\Prettify\lang-mumps.js" />
-    <Content Include="Scripts\Prettify\lang-n.js" />
-    <Content Include="Scripts\Prettify\lang-pascal.js" />
-    <Content Include="Scripts\Prettify\lang-proto.js" />
-    <Content Include="Scripts\Prettify\lang-r.js" />
-    <Content Include="Scripts\Prettify\lang-rd.js" />
-    <Content Include="Scripts\Prettify\lang-scala.js" />
-    <Content Include="Scripts\Prettify\lang-sql.js" />
-    <Content Include="Scripts\Prettify\lang-tcl.js" />
-    <Content Include="Scripts\Prettify\lang-tex.js" />
-    <Content Include="Scripts\Prettify\lang-vb.js" />
-    <Content Include="Scripts\Prettify\lang-vhdl.js" />
-    <Content Include="Scripts\Prettify\lang-wiki.js" />
-    <Content Include="Scripts\Prettify\lang-xq.js" />
-    <Content Include="Scripts\Prettify\lang-yaml.js" />
-    <Content Include="Scripts\Prettify\prettify.js" />
-    <Content Include="Scripts\Prettify\run_prettify.js" />
     <Content Include="Scripts\tags.js" />
     <Content Include="Scripts\jquery.tagsinput.min.js" />
-    <Content Include="Themes\Jungle\Content\Images\admin-n3o-logo.png" />
-    <Content Include="Themes\Jungle\Content\Images\apple-touch-icon-57-precomposed.png" />
-    <Content Include="Themes\Jungle\Content\Images\arrow-spinner-blue.gif" />
-    <Content Include="Themes\Jungle\Content\Images\delete.png" />
-    <Content Include="Themes\Jungle\Content\Images\down-arrow.png" />
-    <Content Include="Themes\Jungle\Content\Images\edit.png" />
-    <Content Include="Themes\Jungle\Content\Images\facebook-connect-large.png" />
-    <Content Include="Themes\Jungle\Content\Images\favicon.ico" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons-halflings-white.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons-halflings.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_009_magic.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_042_group.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_079_podium.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_082_roundabout.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_155_show_thumbnails.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_163_iphone.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_214_resize_small.png" />
-    <Content Include="Themes\Jungle\Content\Images\glyphicons\glyphicons_266_book_open.png" />
-    <Content Include="Themes\Jungle\Content\Images\mail-add.png" />
-    <Content Include="Themes\Jungle\Content\Images\mail-delete.png" />
-    <Content Include="Themes\Jungle\Content\Images\main-bg.png" />
-    <Content Include="Themes\Jungle\Content\Images\mobile-nav-icon.png" />
-    <Content Include="Themes\Jungle\Content\Images\rss-icon.png" />
-    <Content Include="Themes\Jungle\Content\Images\side-heading-bg.jpg" />
-    <Content Include="Themes\Jungle\Content\Images\side-heading-bg.png" />
-    <Content Include="Themes\Jungle\Content\Images\solve-tick.png" />
-    <Content Include="Themes\Jungle\Content\Images\up-arrow.png" />
-    <Content Include="Themes\Jungle\Content\Scripts\general.js" />
-    <Content Include="Themes\Jungle\Content\Styles\Theme.css" />
-    <Content Include="Themes\Dark\Content\Images\admin-n3o-logo.png" />
-    <Content Include="Themes\Dark\Content\Images\apple-touch-icon-57-precomposed.png" />
-    <Content Include="Themes\Dark\Content\Images\arrow-spinner-blue.gif" />
-    <Content Include="Themes\Dark\Content\Images\delete.png" />
-    <Content Include="Themes\Dark\Content\Images\down-arrow.png" />
-    <Content Include="Themes\Dark\Content\Images\edit.png" />
-    <Content Include="Themes\Dark\Content\Images\facebook-connect-large.png" />
-    <Content Include="Themes\Dark\Content\Images\favicon.ico" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons-halflings-white.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons-halflings.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_009_magic.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_042_group.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_079_podium.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_082_roundabout.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_155_show_thumbnails.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_163_iphone.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_214_resize_small.png" />
-    <Content Include="Themes\Dark\Content\Images\glyphicons\glyphicons_266_book_open.png" />
-    <Content Include="Themes\Dark\Content\Images\mail-add.png" />
-    <Content Include="Themes\Dark\Content\Images\mail-delete.png" />
-    <Content Include="Themes\Dark\Content\Images\mobile-nav-icon.png" />
-    <Content Include="Themes\Dark\Content\Images\rss-icon.png" />
-    <Content Include="Themes\Dark\Content\Images\solve-tick.png" />
-    <Content Include="Themes\Dark\Content\Images\up-arrow.png" />
-    <Content Include="Themes\Dark\Content\Scripts\general.js" />
-    <Content Include="Themes\Dark\Content\Styles\Theme.css" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumli.svg" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumsb.svg" />
-    <Content Include="Themes\Metro\Content\Images\admin-n3o-logo.png" />
     <Content Include="Themes\Metro\Content\Images\apple-touch-icon-57-precomposed.png" />
     <Content Include="Themes\Metro\Content\Images\arrow-spinner-blue.gif" />
-    <Content Include="Themes\Metro\Content\Images\delete.png" />
-    <Content Include="Themes\Metro\Content\Images\down-arrow.png" />
-    <Content Include="Themes\Metro\Content\Images\edit.png" />
-    <Content Include="Themes\Metro\Content\Images\facebook-connect-large.png" />
     <Content Include="Themes\Metro\Content\Images\favicon.ico" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons-halflings-white.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons-halflings.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_009_magic.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_042_group.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_079_podium.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_082_roundabout.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_155_show_thumbnails.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_163_iphone.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_214_resize_small.png" />
-    <Content Include="Themes\Metro\Content\Images\glyphicons\glyphicons_266_book_open.png" />
-    <Content Include="Themes\Metro\Content\Images\mail-add.png" />
-    <Content Include="Themes\Metro\Content\Images\mail-delete.png" />
-    <Content Include="Themes\Metro\Content\Images\mobile-nav-icon.png" />
-    <Content Include="Themes\Metro\Content\Images\rss-icon.png" />
-    <Content Include="Themes\Metro\Content\Images\solve-tick.png" />
-    <Content Include="Themes\Metro\Content\Images\up-arrow.png" />
+    <Content Include="Themes\Metro\Content\Images\logo.png" />
     <Content Include="Themes\Metro\Content\Scripts\general.js" />
-    <Content Include="Themes\Metro\Content\Styles\Theme.css" />
-    <Content Include="Themes\n3o\Content\Images\admin-n3o-logo.png" />
-    <Content Include="Themes\n3o\Content\Images\apple-touch-icon-57-precomposed.png" />
-    <Content Include="Themes\n3o\Content\Images\arrow-spinner-blue.gif" />
-    <Content Include="Themes\n3o\Content\Images\facebook-connect-large.png" />
-    <Content Include="Themes\n3o\Content\Images\favicon.ico" />
-    <Content Include="Themes\n3o\Content\Images\mail-add.png" />
-    <Content Include="Themes\n3o\Content\Images\mail-delete.png" />
-    <Content Include="Themes\n3o\Content\Images\mobile-nav-icon.png" />
-    <Content Include="Themes\n3o\Content\Images\rss-icon.png" />
-    <Content Include="Themes\n3o\Content\Images\down-arrow.png" />
-    <Content Include="Themes\n3o\Content\Images\solve-tick.png" />
-    <Content Include="Themes\n3o\Content\Images\up-arrow.png" />
+    <Content Include="Themes\Metro\Content\Styles\imports.css" />
     <Content Include="Scripts\general.js" />
     <Content Include="Scripts\MicrosoftAjax.debug.js" />
     <Content Include="Scripts\MicrosoftAjax.js" />
@@ -1465,23 +1213,10 @@
     <Content Include="Scripts\fancybox\jquery.fancybox.css" />
     <Content Include="Scripts\fancybox\jquery.fancybox.js" />
     <Content Include="Scripts\fancybox\jquery.fancybox.pack.js" />
-    <Content Include="Themes\n3o\Content\Scripts\general.js" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons-halflings-white.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons-halflings.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_009_magic.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_042_group.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_079_podium.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_082_roundabout.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_155_show_thumbnails.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_163_iphone.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_214_resize_small.png" />
-    <Content Include="Themes\n3o\Content\Images\glyphicons\glyphicons_266_book_open.png" />
-    <Content Include="Themes\n3o\Content\Images\delete.png" />
-    <Content Include="Themes\n3o\Content\Images\edit.png" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\admin\Admin.js" />
     <Content Include="Scripts\admin\FadeOutMessage.js" />
-    <Content Include="Themes\n3o\Content\Styles\Theme.css" />
+    <Content Include="Content\slideoutpanel.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1494,331 +1229,159 @@
     <Content Include="Views\Web.config" />
     <Content Include="Views\Install\ManualUpgradeNeeded.cshtml" />
     <Content Include="Views\Install\UpgradeDb.cshtml" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.woff" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.ttf" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.json" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.eot" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.woff" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.ttf" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.json" />
-    <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce.eot" />
-    <Content Include="Themes\Metro\Views\Shared\_CreateNewPost.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_DocumentationBlock.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_EmailConfirmationNotice.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_GenericMessage.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_LanguagePartial.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_LogOnPartial.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_ModeratePost.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_ModerateTopic.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_NoScript.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_Poll.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_Post.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_PostModeration.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_SocialLoginButtons.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_SubCategories.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_Topic.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\_TopicSlim.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\Error.cshtml" />
-    <Content Include="Themes\Metro\Views\Shared\GetCategoryBreadcrumb.cshtml" />
-    <Content Include="Themes\Metro\Views\Badge\AllBadges.cshtml" />
-    <Content Include="Themes\Metro\Views\Category\Index.cshtml" />
-    <Content Include="Themes\Metro\Views\Category\ListCategorySideMenu.cshtml" />
-    <Content Include="Themes\Metro\Views\Category\ListMainCategories.cshtml" />
-    <Content Include="Themes\Metro\Views\Category\Show.cshtml" />
-    <Content Include="Themes\Metro\Views\Closed\Index.cshtml" />
-    <Content Include="Themes\Metro\Views\Home\Activity.cshtml" />
-    <Content Include="Themes\Metro\Views\Home\Index.cshtml" />
-    <Content Include="Themes\Metro\Views\Home\LatestTopics.cshtml" />
-    <Content Include="Themes\Metro\Views\Home\Leaderboard.cshtml" />
-    <Content Include="Themes\Metro\Views\Home\UploadFiles.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\AdminMemberProfileTools.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\ChangePassword.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\Edit.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\ForgotPassword.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\GetByName.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\GetCurrentActiveMembers.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\GetMemberDiscussions.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\LatestMembersJoined.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\LogOn.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\Register.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\Report.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\Search.cshtml" />
-    <Content Include="Themes\Metro\Views\Members\SideAdminPanel.cshtml" />
-    <Content Include="Themes\Metro\Views\Point\CurrentWeekHighPointUsers.cshtml" />
-    <Content Include="Themes\Metro\Views\Post\EditPost.cshtml" />
-    <Content Include="Themes\Metro\Views\Post\Report.cshtml" />
-    <Content Include="Themes\Metro\Views\PrivateMessage\Create.cshtml" />
-    <Content Include="Themes\Metro\Views\PrivateMessage\Index.cshtml" />
-    <Content Include="Themes\Metro\Views\PrivateMessage\SentMessages.cshtml" />
-    <Content Include="Themes\Metro\Views\PrivateMessage\View.cshtml" />
-    <Content Include="Themes\Metro\Views\Search\Index.cshtml" />
-    <Content Include="Themes\Metro\Views\Search\SideSearch.cshtml" />
-    <Content Include="Themes\Metro\Views\Search\Testing.cshtml" />
-    <Content Include="Themes\Metro\Views\Snippets\GetThisWeeksTopEarners.cshtml" />
-    <Content Include="Themes\Metro\Views\Snippets\GetThisYearsTopEarners.cshtml" />
-    <Content Include="Themes\Metro\Views\Stats\GetMainStats.cshtml" />
-    <Content Include="Themes\Metro\Views\Tag\PopularTags.cshtml" />
-    <Content Include="Themes\Metro\Views\Topic\AjaxMorePosts.cshtml" />
-    <Content Include="Themes\Metro\Views\Topic\Create.cshtml" />
-    <Content Include="Themes\Metro\Views\Topic\CreateTopicButton.cshtml" />
-    <Content Include="Themes\Metro\Views\Topic\GetSimilarTopics.cshtml" />
-    <Content Include="Themes\Metro\Views\Topic\Show.cshtml" />
-    <Content Include="Themes\Metro\Views\Topic\TopicsByTag.cshtml" />
-    <Content Include="Themes\Metro\Views\Vote\GetVoters.cshtml" />
-    <Content Include="Themes\Metro\Views\Vote\GetVotes.cshtml" />
-    <Content Include="Themes\n3o\Views\Badge\AllBadges.cshtml" />
-    <Content Include="Themes\n3o\Views\Category\Index.cshtml" />
-    <Content Include="Themes\n3o\Views\Category\ListCategorySideMenu.cshtml" />
-    <Content Include="Themes\n3o\Views\Category\ListMainCategories.cshtml" />
-    <Content Include="Themes\n3o\Views\Category\Show.cshtml" />
-    <Content Include="Themes\n3o\Views\Closed\Index.cshtml" />
-    <Content Include="Themes\n3o\Views\Home\Activity.cshtml" />
-    <Content Include="Themes\n3o\Views\Home\Index.cshtml" />
-    <Content Include="Themes\n3o\Views\Home\LatestTopics.cshtml" />
-    <Content Include="Themes\n3o\Views\Home\Leaderboard.cshtml" />
-    <Content Include="Themes\n3o\Views\Home\UploadFiles.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\AdminMemberProfileTools.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\ChangePassword.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\Edit.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\ForgotPassword.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\GetByName.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\GetCurrentActiveMembers.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\GetMemberDiscussions.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\LatestMembersJoined.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\LogOn.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\Register.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\Report.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\Search.cshtml" />
-    <Content Include="Themes\n3o\Views\Members\SideAdminPanel.cshtml" />
-    <Content Include="Themes\n3o\Views\Point\CurrentWeekHighPointUsers.cshtml" />
-    <Content Include="Themes\n3o\Views\Post\EditPost.cshtml" />
-    <Content Include="Themes\n3o\Views\Post\Report.cshtml" />
-    <Content Include="Themes\n3o\Views\PrivateMessage\Create.cshtml" />
-    <Content Include="Themes\n3o\Views\PrivateMessage\Index.cshtml" />
-    <Content Include="Themes\n3o\Views\PrivateMessage\SentMessages.cshtml" />
-    <Content Include="Themes\n3o\Views\PrivateMessage\View.cshtml" />
-    <Content Include="Themes\n3o\Views\Search\Index.cshtml" />
-    <Content Include="Themes\n3o\Views\Search\SideSearch.cshtml" />
-    <Content Include="Themes\n3o\Views\Search\Testing.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_CreateNewPost.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_DocumentationBlock.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_EmailConfirmationNotice.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_GenericMessage.cshtml" />
+    <Content Include="Views\Snippets\GetThisWeeksTopEarners.cshtml" />
+    <Content Include="Views\Snippets\GetThisYearsTopEarners.cshtml" />
+    <Content Include="Views\Stats\GetMainStats.cshtml" />
+    <Content Include="Views\Tag\PopularTags.cshtml" />
+    <Content Include="Views\Topic\AjaxMorePosts.cshtml" />
+    <Content Include="Views\Topic\Create.cshtml" />
+    <Content Include="Views\Topic\CreateTopicButton.cshtml" />
+    <Content Include="Views\Topic\GetSimilarTopics.cshtml" />
+    <Content Include="Views\Topic\Show.cshtml" />
+    <Content Include="Views\Topic\TopicsByTag.cshtml" />
+    <Content Include="Views\Vote\GetVoters.cshtml" />
+    <Content Include="Views\Vote\GetVotes.cshtml" />
     <Content Include="Views\Shared\_Install.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_LanguagePartial.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_Layout.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_LogOnPartial.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_ModeratePost.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_ModerateTopic.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_NoScript.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_Poll.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_Post.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_PostModeration.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_SocialLoginButtons.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_SubCategories.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_Topic.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\_TopicSlim.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\Error.cshtml" />
-    <Content Include="Themes\n3o\Views\Shared\GetCategoryBreadcrumb.cshtml" />
-    <Content Include="Themes\n3o\Views\Snippets\GetThisWeeksTopEarners.cshtml" />
-    <Content Include="Themes\n3o\Views\Snippets\GetThisYearsTopEarners.cshtml" />
-    <Content Include="Themes\n3o\Views\Stats\GetMainStats.cshtml" />
-    <Content Include="Themes\n3o\Views\Tag\PopularTags.cshtml" />
-    <Content Include="Themes\n3o\Views\Topic\AjaxMorePosts.cshtml" />
-    <Content Include="Themes\n3o\Views\Topic\Create.cshtml" />
-    <Content Include="Themes\n3o\Views\Topic\CreateTopicButton.cshtml" />
-    <Content Include="Themes\n3o\Views\Topic\GetSimilarTopics.cshtml" />
-    <Content Include="Themes\n3o\Views\Topic\Show.cshtml" />
-    <Content Include="Themes\n3o\Views\Topic\TopicsByTag.cshtml" />
-    <Content Include="Themes\n3o\Views\Vote\GetVoters.cshtml" />
-    <Content Include="Themes\n3o\Views\Vote\GetVotes.cshtml" />
-    <Content Include="Themes\Jungle\Views\Badge\AllBadges.cshtml" />
-    <Content Include="Themes\Jungle\Views\Category\Index.cshtml" />
-    <Content Include="Themes\Jungle\Views\Category\ListCategorySideMenu.cshtml" />
-    <Content Include="Themes\Jungle\Views\Category\ListMainCategories.cshtml" />
-    <Content Include="Themes\Jungle\Views\Category\Show.cshtml" />
-    <Content Include="Themes\Jungle\Views\Closed\Index.cshtml" />
-    <Content Include="Themes\Jungle\Views\Home\Activity.cshtml" />
-    <Content Include="Themes\Jungle\Views\Home\Index.cshtml" />
-    <Content Include="Themes\Jungle\Views\Home\LatestTopics.cshtml" />
-    <Content Include="Themes\Jungle\Views\Home\Leaderboard.cshtml" />
-    <Content Include="Themes\Jungle\Views\Home\UploadFiles.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\AdminMemberProfileTools.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\ChangePassword.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\Edit.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\ForgotPassword.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\GetByName.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\GetCurrentActiveMembers.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\GetMemberDiscussions.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\LatestMembersJoined.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\LogOn.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\Register.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\Report.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\Search.cshtml" />
-    <Content Include="Themes\Jungle\Views\Members\SideAdminPanel.cshtml" />
-    <Content Include="Themes\Jungle\Views\Point\CurrentWeekHighPointUsers.cshtml" />
-    <Content Include="Themes\Jungle\Views\Post\EditPost.cshtml" />
-    <Content Include="Themes\Jungle\Views\Post\Report.cshtml" />
-    <Content Include="Themes\Jungle\Views\PrivateMessage\Create.cshtml" />
-    <Content Include="Themes\Jungle\Views\PrivateMessage\Index.cshtml" />
-    <Content Include="Themes\Jungle\Views\PrivateMessage\SentMessages.cshtml" />
-    <Content Include="Themes\Jungle\Views\PrivateMessage\View.cshtml" />
-    <Content Include="Themes\Jungle\Views\Search\Index.cshtml" />
-    <Content Include="Themes\Jungle\Views\Search\SideSearch.cshtml" />
-    <Content Include="Themes\Jungle\Views\Search\Testing.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_CreateNewPost.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_DocumentationBlock.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_EmailConfirmationNotice.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_GenericMessage.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_LanguagePartial.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_Layout.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_LogOnPartial.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_ModeratePost.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_ModerateTopic.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_NoScript.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_Poll.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_Post.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_PostModeration.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_SocialLoginButtons.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_SubCategories.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_Topic.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\_TopicSlim.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\Error.cshtml" />
-    <Content Include="Themes\Jungle\Views\Shared\GetCategoryBreadcrumb.cshtml" />
-    <Content Include="Themes\Jungle\Views\Snippets\GetThisWeeksTopEarners.cshtml" />
-    <Content Include="Themes\Jungle\Views\Snippets\GetThisYearsTopEarners.cshtml" />
-    <Content Include="Themes\Jungle\Views\Stats\GetMainStats.cshtml" />
-    <Content Include="Themes\Jungle\Views\Tag\PopularTags.cshtml" />
-    <Content Include="Themes\Jungle\Views\Topic\AjaxMorePosts.cshtml" />
-    <Content Include="Themes\Jungle\Views\Topic\Create.cshtml" />
-    <Content Include="Themes\Jungle\Views\Topic\CreateTopicButton.cshtml" />
-    <Content Include="Themes\Jungle\Views\Topic\GetSimilarTopics.cshtml" />
-    <Content Include="Themes\Jungle\Views\Topic\Show.cshtml" />
-    <Content Include="Themes\Jungle\Views\Topic\TopicsByTag.cshtml" />
-    <Content Include="Themes\Jungle\Views\Vote\GetVoters.cshtml" />
-    <Content Include="Themes\Jungle\Views\Vote\GetVotes.cshtml" />
-    <Content Include="Themes\Dark\Views\Badge\AllBadges.cshtml" />
-    <Content Include="Themes\Dark\Views\Category\Index.cshtml" />
-    <Content Include="Themes\Dark\Views\Category\ListCategorySideMenu.cshtml" />
-    <Content Include="Themes\Dark\Views\Category\ListMainCategories.cshtml" />
-    <Content Include="Themes\Dark\Views\Category\Show.cshtml" />
-    <Content Include="Themes\Dark\Views\Closed\Index.cshtml" />
-    <Content Include="Themes\Dark\Views\Home\Activity.cshtml" />
-    <Content Include="Themes\Dark\Views\Home\Index.cshtml" />
-    <Content Include="Themes\Dark\Views\Home\LatestTopics.cshtml" />
-    <Content Include="Themes\Dark\Views\Home\Leaderboard.cshtml" />
-    <Content Include="Themes\Dark\Views\Home\UploadFiles.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\AdminMemberProfileTools.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\ChangePassword.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\Edit.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\ForgotPassword.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\GetByName.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\GetCurrentActiveMembers.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\GetMemberDiscussions.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\LatestMembersJoined.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\LogOn.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\Register.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\Report.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\Search.cshtml" />
-    <Content Include="Themes\Dark\Views\Members\SideAdminPanel.cshtml" />
-    <Content Include="Themes\Dark\Views\Point\CurrentWeekHighPointUsers.cshtml" />
-    <Content Include="Themes\Dark\Views\Post\EditPost.cshtml" />
-    <Content Include="Themes\Dark\Views\Post\Report.cshtml" />
-    <Content Include="Themes\Dark\Views\PrivateMessage\Create.cshtml" />
-    <Content Include="Themes\Dark\Views\PrivateMessage\Index.cshtml" />
-    <Content Include="Themes\Dark\Views\PrivateMessage\SentMessages.cshtml" />
-    <Content Include="Themes\Dark\Views\PrivateMessage\View.cshtml" />
-    <Content Include="Themes\Dark\Views\Search\Index.cshtml" />
-    <Content Include="Themes\Dark\Views\Search\SideSearch.cshtml" />
-    <Content Include="Themes\Dark\Views\Search\Testing.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_CreateNewPost.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_DocumentationBlock.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_EmailConfirmationNotice.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_GenericMessage.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_LanguagePartial.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_Layout.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_LogOnPartial.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_ModeratePost.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_ModerateTopic.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_NoScript.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_Poll.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_Post.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_PostModeration.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_SocialLoginButtons.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_SubCategories.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_Topic.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\_TopicSlim.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\Error.cshtml" />
-    <Content Include="Themes\Dark\Views\Shared\GetCategoryBreadcrumb.cshtml" />
-    <Content Include="Themes\Dark\Views\Snippets\GetThisWeeksTopEarners.cshtml" />
-    <Content Include="Themes\Dark\Views\Snippets\GetThisYearsTopEarners.cshtml" />
-    <Content Include="Themes\Dark\Views\Stats\GetMainStats.cshtml" />
-    <Content Include="Themes\Dark\Views\Tag\PopularTags.cshtml" />
-    <Content Include="Themes\Dark\Views\Topic\AjaxMorePosts.cshtml" />
-    <Content Include="Themes\Dark\Views\Topic\Create.cshtml" />
-    <Content Include="Themes\Dark\Views\Topic\CreateTopicButton.cshtml" />
-    <Content Include="Themes\Dark\Views\Topic\GetSimilarTopics.cshtml" />
-    <Content Include="Themes\Dark\Views\Topic\Show.cshtml" />
-    <Content Include="Themes\Dark\Views\Topic\TopicsByTag.cshtml" />
-    <Content Include="Themes\Dark\Views\Vote\GetVoters.cshtml" />
-    <Content Include="Themes\Dark\Views\Vote\GetVotes.cshtml" />
-    <Content Include="Themes\Metro\Views\_ViewStart.cshtml" />
-    <Content Include="Themes\n3o\Views\_ViewStart.cshtml" />
-    <Content Include="Themes\Jungle\Views\_ViewStart.cshtml" />
-    <Content Include="Themes\Dark\Views\_ViewStart.cshtml" />
-    <Content Include="Themes\n3o\Views\Web.config" />
-    <Content Include="Themes\Jungle\Views\Web.config" />
-    <Content Include="Themes\Dark\Views\Web.config" />
+    <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\_GenericMessage.cshtml" />
-    <Content Include="Scripts\version.json" />
+    <Content Include="Views\Badge\AllBadges.cshtml" />
+    <Content Include="Views\Category\Index.cshtml" />
+    <Content Include="Views\Category\ListCategorySideMenu.cshtml" />
+    <Content Include="Views\Category\ListMainCategories.cshtml" />
+    <Content Include="Views\Category\Show.cshtml" />
+    <Content Include="Views\Closed\Index.cshtml" />
+    <Content Include="Views\Home\Activity.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Topic\LatestTopics.cshtml" />
+    <Content Include="Views\Home\Leaderboard.cshtml" />
+    <Content Include="Views\Members\AdminMemberProfileTools.cshtml" />
+    <Content Include="Views\Members\ChangePassword.cshtml" />
+    <Content Include="Views\Members\Edit.cshtml" />
+    <Content Include="Views\Members\ForgotPassword.cshtml" />
+    <Content Include="Views\Members\GetByName.cshtml" />
+    <Content Include="Views\Members\GetCurrentActiveMembers.cshtml" />
+    <Content Include="Views\Members\GetMemberDiscussions.cshtml" />
+    <Content Include="Views\Members\LatestMembersJoined.cshtml" />
+    <Content Include="Views\Members\LogOn.cshtml" />
+    <Content Include="Views\Members\Register.cshtml" />
+    <Content Include="Views\Members\Report.cshtml" />
+    <Content Include="Views\Members\Search.cshtml" />
+    <Content Include="Views\Members\SideAdminPanel.cshtml" />
+    <Content Include="Views\Point\CurrentWeekHighPointUsers.cshtml" />
+    <Content Include="Views\Topic\EditPostTopic.cshtml" />
+    <Content Include="Views\Post\Report.cshtml" />
+    <Content Include="Views\PrivateMessage\Create.cshtml" />
+    <Content Include="Views\PrivateMessage\Index.cshtml" />
+    <Content Include="Views\PrivateMessage\View.cshtml" />
+    <Content Include="Views\Search\Index.cshtml" />
+    <Content Include="Views\Search\SideSearch.cshtml" />
+    <Content Include="Views\Shared\_CreateNewPost.cshtml" />
+    <Content Include="Views\Shared\_DocumentationBlock.cshtml" />
+    <Content Include="Views\Shared\_EmailConfirmationNotice.cshtml" />
+    <Content Include="Views\Shared\_LanguagePartial.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_LogOnPartial.cshtml" />
+    <Content Include="Views\Shared\_ModeratePost.cshtml" />
+    <Content Include="Views\Shared\_ModerateTopic.cshtml" />
+    <Content Include="Views\Shared\_NoScript.cshtml" />
+    <Content Include="Views\Shared\_Poll.cshtml" />
+    <Content Include="Views\Shared\_Post.cshtml" />
+    <Content Include="Views\Shared\_PostModeration.cshtml" />
+    <Content Include="Views\Shared\_SocialLoginButtons.cshtml" />
+    <Content Include="Views\Shared\_SubCategories.cshtml" />
+    <Content Include="Views\Shared\_Topic.cshtml" />
+    <Content Include="Views\Shared\_TopicSlim.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\GetCategoryBreadcrumb.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\colourpicker.cshtml" />
+    <Content Include="Views\Topic\HotTopics.cshtml" />
+    <Content Include="Views\Shared\_LayoutRightSideBar.cshtml" />
+    <Content Include="Views\Shared\_LayoutFullWidth.cshtml" />
+    <Content Include="Views\Category\GetSubscribedCategories.cshtml" />
+    <Content Include="Views\Shared\_Category.cshtml" />
+    <Content Include="Views\Topic\GetSubscribedTopics.cshtml" />
+    <Content Include="Views\Home\Following.cshtml" />
+    <Content Include="Views\Home\PostedIn.cshtml" />
+    <Content Include="Views\Shared\SubNavigation.cshtml" />
+    <Content Include="Views\Topic\TopicsMemberHasPostedIn.cshtml" />
+    <Content Include="Views\Favourite\Index.cshtml" />
+    <Content Include="Views\Shared\_Badge.cshtml" />
+    <Content Include="Views\Shared\_PostSearch.cshtml" />
+    <Content Include="Views\Shared\_CreateEdit_TopicPost.cshtml" />
+    <Content Include="Views\Shared\_CommonSideNav.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\forumeditor.cshtml" />
+    <Content Include="Views\Shared\customeditors\tinymceeditor.cshtml" />
+    <Content Include="Views\Shared\_PrivateMessage.cshtml" />
+    <Content Include="Views\Members\PasswordResetSent.cshtml" />
+    <Content Include="Views\Members\ResetPassword.cshtml" />
+    <Content Include="Views\Members\PasswordChanged.cshtml" />
+    <None Include="_bin_deployableAssemblies\amd64\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
+    <None Include="_bin_deployableAssemblies\x86\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Themes\Dark\Views\Extensions\" />
-    <Folder Include="Themes\Jungle\Content\Fonts\" />
-    <Folder Include="Themes\Jungle\Views\Extensions\" />
-    <Folder Include="Themes\Metro\Views\Extensions\" />
-    <Folder Include="Themes\n3o\Views\Extensions\" />
-    <Folder Include="Views\Extensions\" />
+    <Folder Include="Content\languagepacks\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Badges\AuthorMarkAsSolution\Badge.AuthorMarkAsSolution.csproj">
-      <Project>{49448f62-01cd-4e2a-8880-a98bb66c4afd}</Project>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.AuthorMarkAsSolution\Badge.AuthorMarkAsSolution.csproj">
+      <Project>{c90e299c-58d3-4afa-90b8-cb39aa4a1e99}</Project>
       <Name>Badge.AuthorMarkAsSolution</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\Badge.OneThousandPoints\Badge.OneThousandPoints.csproj">
-      <Project>{43875caf-fcbb-4e7b-b732-ba5e3f0212c9}</Project>
-      <Name>Badge.OneThousandPoints</Name>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.FavouriteFirstPost\Badge.FavouriteFirstPost.csproj">
+      <Project>{9c923d92-4963-44fe-b75b-0a8aaab9b689}</Project>
+      <Name>Badge.FavouriteFirstPost</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\Badge.Padawan\Badge.Padawan.csproj">
-      <Project>{36959215-ded3-4d37-bfcc-33a454e51f4d}</Project>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.Grouch\Badge.Grouch.csproj">
+      <Project>{83f9f278-d2be-479a-a398-b36779be3348}</Project>
+      <Name>Badge.Grouch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.JediMaster\Badge.JediMaster.csproj">
+      <Project>{7dff8353-e247-4840-a9a5-9e81114276b5}</Project>
+      <Name>Badge.JediMaster</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.MemberForAYear\Badge.MemberForAYear.csproj">
+      <Project>{168911c2-86d0-4e12-a675-7a035bab9dd0}</Project>
+      <Name>Badge.MemberForAYear</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.Padawan\Badge.Padawan.csproj">
+      <Project>{a891ff9c-83ae-40db-9fec-552c209f953b}</Project>
       <Name>Badge.Padawan</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\Badge.VoteTheGrouch\Badge.VoteTheGrouch.csproj">
-      <Project>{a4e05fda-ebaf-4f3e-b9c5-8ae4d8d6ec6e}</Project>
-      <Name>Badge.VoteTheGrouch</Name>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.Photogenic\Badge.Photogenic.csproj">
+      <Project>{23f1a8bc-856a-4f67-ae6b-1a79230c5c3c}</Project>
+      <Name>Badge.Photogenic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\MemberForAYearBadge\Badge.MemberForAYearBadge.csproj">
-      <Project>{7a15b80d-5167-4181-a7e7-9121b9856526}</Project>
-      <Name>Badge.MemberForAYearBadge</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Badges\PosterMarkAsSolution\Badge.PosterMarkAsSolution.csproj">
-      <Project>{10bd34f8-9347-4471-9470-a00b143bd50b}</Project>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.PosterMarkAsSolution\Badge.PosterMarkAsSolution.csproj">
+      <Project>{9ca6fd3e-67b3-456b-b6f5-38c04e18259f}</Project>
       <Name>Badge.PosterMarkAsSolution</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\PosterVoteUpBadge\Badge.PosterVoteUpBadge.csproj">
-      <Project>{21769e8e-b8ee-4c8f-9eb0-48d7ba6b7873}</Project>
-      <Name>Badge.PosterVoteUpBadge</Name>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.PosterVoteUp\Badge.PosterVoteUp.csproj">
+      <Project>{327a7feb-aefe-47d9-aa0f-c08835e26a3a}</Project>
+      <Name>Badge.PosterVoteUp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\PostMentionUmbraco\Badge.PostMentionUmbraco.csproj">
-      <Project>{acf6b8fe-4422-4950-802d-5133991741f7}</Project>
-      <Name>Badge.PostMentionUmbraco</Name>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.PostMentionsUmbraco\Badge.PostMentionsUmbraco.csproj">
+      <Project>{330a777b-fe88-4cf5-9583-6693547a8f1c}</Project>
+      <Name>Badge.PostMentionsUmbraco</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Badges\UserVoteUpBadge\Badge.UserVoteUpBadge.csproj">
-      <Project>{3bbbfe42-e642-4337-bd42-a8b15ea1fa01}</Project>
-      <Name>Badge.UserVoteUpBadge</Name>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.ThousandPoints\Badge.ThousandPoints.csproj">
+      <Project>{ba3ac605-745e-4de4-a1bd-08f6d63757db}</Project>
+      <Name>Badge.ThousandPoints</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.UserVoteUp\Badge.UserVoteUp.csproj">
+      <Project>{abe6051b-56d8-4867-84df-43b6ad04a562}</Project>
+      <Name>Badge.UserVoteUp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.YourPostFavouritedTenTimes\Badge.YourPostFavouritedTenTimes.csproj">
+      <Project>{097883d7-6c3e-4944-b2d8-a9cc8a9356f4}</Project>
+      <Name>Badge.YourPostFavouritedTenTimes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MVCForum.Badges\Badge.YourPostFavourited\Badge.YourPostFavourited.csproj">
+      <Project>{47d979db-08a8-4c44-b21f-4b738e8334a2}</Project>
+      <Name>Badge.YourPostFavourited</Name>
     </ProjectReference>
     <ProjectReference Include="..\MVCForum.Core\MVCForum.Domain.csproj">
       <Project>{20AD3D3C-153E-47AC-BA9C-3E4DB876990E}</Project>
@@ -1827,14 +1390,6 @@
     <ProjectReference Include="..\MVCForum.IOC\MVCForum.IOC.csproj">
       <Project>{B3A94898-2420-4FC0-8774-147FDE3B13B2}</Project>
       <Name>MVCForum.IOC</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MVCForum.Lucene\MVCForum.Lucene.csproj">
-      <Project>{09b73e3f-171f-4df3-8802-60be071cffbd}</Project>
-      <Name>MVCForum.Lucene</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MVCForum.OpenAuth\MVCForum.OpenAuth.csproj">
-      <Project>{9f9be9de-d8ff-4e10-a4c6-c40ff3ba40bc}</Project>
-      <Name>MVCForum.OpenAuth</Name>
     </ProjectReference>
     <ProjectReference Include="..\MVCForum.Utilities\MVCForum.Utilities.csproj">
       <Project>{D0CE5E27-041D-4F1E-8C8C-5F4888C72155}</Project>
@@ -1874,9 +1429,6 @@
     <Content Include="Areas\Admin\Views\AdminCategory\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Areas\Admin\Views\AdminCategory\ListAllCategories.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Areas\Admin\Views\AdminCategory\GetMainCategories.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -1887,9 +1439,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Views\Shared\_AdminBlankLayout.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Areas\Admin\Views\AdminCategory\PopupConfirm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Views\AdminCategory\DeleteCategoryConfirmation.cshtml" />
@@ -1949,7 +1498,7 @@
     <Content Include="Areas\Admin\Views\Log\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Shared\EditorTemplates\bbeditor.cshtml" />
+    <Content Include="Views\Shared\customeditors\bbeditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Admin\Views\Dashboard\LatestUsers.cshtml" />
@@ -1970,25 +1519,16 @@
     <Content Include="Areas\Admin\Views\ImportExport\Members.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Themes\Metro\Views\Web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Themes\Metro\Views\Shared\_Layout.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Areas\Admin\Views\Dashboard\MvcForumLatestNews.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Areas\Admin\Views\AdminLucene\Index.cshtml" />
-    <None Include="Properties\PublishProfiles\Profile1.pubxml" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumli.eot" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumli.ttf" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumli.woff" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumsb.eot" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumsb.ttf" />
     <Content Include="Themes\Metro\Content\Fonts\mvcforumsb.woff" />
-    <Content Include="Views\Shared\EditorTemplates\markdowneditor.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\tinymceeditor.cshtml" />
+    <Content Include="Views\Shared\customeditors\markdowneditor.cshtml" />
     <Content Include="Views\Install\Index.cshtml" />
     <Content Include="Views\Install\CreateDb.cshtml" />
     <Content Include="Views\Install\Complete.cshtml" />
@@ -2027,9 +1567,11 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
-  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
-    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
-    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
 </Project>

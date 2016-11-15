@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Web.Hosting;
 using System.Web.Mvc;
 using MVCForum.Domain.Constants;
 using MVCForum.Domain.DomainModel;
 using MVCForum.Domain.Interfaces.Services;
 using MVCForum.Domain.Interfaces.UnitOfWork;
+using MVCForum.Website.Application;
 using MVCForum.Website.Areas.Admin.ViewModels;
 
 namespace MVCForum.Website.Areas.Admin.Controllers
@@ -32,19 +35,6 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         }
 
         [ChildActionOnly]
-        public PartialViewResult ListAllCategories(Guid id)
-        {
-            using (UnitOfWorkManager.NewUnitOfWork())
-            {
-                var viewModel = new ListCategoriesViewModel
-                                    {
-                                        Categories = _categoryService.GetAllSubCategories(id)
-                                    };
-                return PartialView(viewModel);
-            }
-        }
-
-        [ChildActionOnly]
         public PartialViewResult GetMainCategories()
         {
             using (UnitOfWorkManager.NewUnitOfWork())
@@ -57,19 +47,18 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             }
         }
 
-        [ChildActionOnly]
-        public PartialViewResult CreateCategory()
+        public ActionResult CreateCategory()
         {
             using (UnitOfWorkManager.NewUnitOfWork())
             {
-                var categoryViewModel = new CreateCategoryViewModel { AllCategories = _categoryService.GetAll().ToList() };
-                return PartialView(categoryViewModel);
+                var categoryViewModel = new CategoryViewModel { AllCategories = _categoryService.GetBaseSelectListCategories(_categoryService.GetAll()) };
+                return View(categoryViewModel);
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateCategory(CreateCategoryViewModel categoryViewModel)
+        public ActionResult CreateCategory(CategoryViewModel categoryViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -86,10 +75,42 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                                                ModerateTopics = categoryViewModel.ModerateTopics,
                                                SortOrder = categoryViewModel.SortOrder,
                                                PageTitle = categoryViewModel.PageTitle,
-                                               MetaDescription = categoryViewModel.MetaDesc
+                                               MetaDescription = categoryViewModel.MetaDesc,
+                                               Colour = categoryViewModel.CategoryColour
                                            };
 
-                        
+                        // Sort image out first
+                        if (categoryViewModel.Files != null)
+                        {
+                            // Before we save anything, check the user already has an upload folder and if not create one
+                            var uploadFolderPath = HostingEnvironment.MapPath(string.Concat(SiteConstants.Instance.UploadFolderPath, category.Id));
+                            if (!Directory.Exists(uploadFolderPath))
+                            {
+                                Directory.CreateDirectory(uploadFolderPath);
+                            }
+
+                            // Loop through each file and get the file info and save to the users folder and Db
+                            var file = categoryViewModel.Files[0];
+                            if (file != null)
+                            {
+                                // If successful then upload the file
+                                var uploadResult = AppHelpers.UploadFile(file, uploadFolderPath, LocalizationService, true);
+
+                                if (!uploadResult.UploadSuccessful)
+                                {
+                                    TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
+                                    {
+                                        Message = uploadResult.ErrorMessage,
+                                        MessageType = GenericMessages.danger
+                                    };
+                                    return View(categoryViewModel);
+                                }
+
+                                // Save avatar to user
+                                category.Image = uploadResult.UploadedFileName;
+                            }
+
+                        }
 
                         if (categoryViewModel.ParentCategory != null)
                         {
@@ -124,9 +145,9 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         }
 
 
-        private EditCategoryViewModel CreateEditCategoryViewModel(Category category)
+        private CategoryViewModel CreateEditCategoryViewModel(Category category)
         {
-            var categoryViewModel = new EditCategoryViewModel
+            var categoryViewModel = new CategoryViewModel
             {
                 Name = category.Name,
                 Description = category.Description,
@@ -137,10 +158,12 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 Id = category.Id,
                 PageTitle = category.PageTitle,
                 MetaDesc = category.MetaDescription,
+                Image = category.Image,
+                CategoryColour = category.Colour,
                 ParentCategory = category.ParentCategory == null ? Guid.Empty : category.ParentCategory.Id,
-                AllCategories = _categoryService.GetAll()
+                AllCategories = _categoryService.GetBaseSelectListCategories(_categoryService.GetAll()
                     .Where(x => x.Id != category.Id)
-                    .ToList()
+                    .ToList())
             };
             return categoryViewModel;
         }
@@ -157,7 +180,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditCategory(EditCategoryViewModel categoryViewModel)
+        public ActionResult EditCategory(CategoryViewModel categoryViewModel)
         {
             if (ModelState.IsValid)
             {
@@ -165,7 +188,56 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 {
                     try
                     {
+
                         var category = _categoryService.Get(categoryViewModel.Id);
+                        var parentCat = categoryViewModel.ParentCategory != null
+                                            ? _categoryService.Get((Guid)categoryViewModel.ParentCategory.Value)
+                                            : null;
+
+                        // Check they are not trying to add a subcategory of this category as the parent or it will break
+                        if (parentCat?.Path != null && categoryViewModel.ParentCategory != null)
+                        {
+                            var parentCats = parentCat.Path.Split(',').Where(x => !string.IsNullOrEmpty(x)).Select(x => new Guid(x)).ToList();
+                            if (parentCats.Contains(categoryViewModel.Id))
+                            {
+                                // Remove the parent category, but still let them create the catgory
+                                categoryViewModel.ParentCategory = null;
+                            }
+                        }
+
+                        // Sort image out first
+                        if (categoryViewModel.Files != null)
+                        {
+                            // Before we save anything, check the user already has an upload folder and if not create one
+                            var uploadFolderPath = HostingEnvironment.MapPath(string.Concat(SiteConstants.Instance.UploadFolderPath, categoryViewModel.Id));
+                            if (!Directory.Exists(uploadFolderPath))
+                            {
+                                Directory.CreateDirectory(uploadFolderPath);
+                            }
+
+                            // Loop through each file and get the file info and save to the users folder and Db
+                            var file = categoryViewModel.Files[0];
+                            if (file != null)
+                            {
+                                // If successful then upload the file
+                                var uploadResult = AppHelpers.UploadFile(file, uploadFolderPath, LocalizationService, true);
+
+                                if (!uploadResult.UploadSuccessful)
+                                {
+                                    TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
+                                    {
+                                        Message = uploadResult.ErrorMessage,
+                                        MessageType = GenericMessages.danger
+                                    };
+                                    return View(categoryViewModel);
+                                }
+
+                                // Save avatar to user
+                                category.Image = uploadResult.UploadedFileName;
+                            }
+
+                        }
+
 
                         category.Description = categoryViewModel.Description;
                         category.IsLocked = categoryViewModel.IsLocked;
@@ -175,6 +247,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         category.SortOrder = categoryViewModel.SortOrder;
                         category.PageTitle = categoryViewModel.PageTitle;
                         category.MetaDescription = categoryViewModel.MetaDesc;
+                        category.Colour = categoryViewModel.CategoryColour;
 
                         if (categoryViewModel.ParentCategory != null)
                         {
@@ -198,10 +271,10 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         _categoryService.UpdateSlugFromName(category);
 
                         TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
-                                                                        {
-                                                                            Message = "Category Updated",
-                                                                            MessageType = GenericMessages.success
-                                                                        };
+                        {
+                            Message = "Category Updated",
+                            MessageType = GenericMessages.success
+                        };
 
                         categoryViewModel = CreateEditCategoryViewModel(category);
 
@@ -215,7 +288,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
                         {
                             Message = "Category Update Failed",
-                            MessageType = GenericMessages.error
+                            MessageType = GenericMessages.danger
                         };
                     }
                 }
@@ -223,6 +296,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
 
             return View(categoryViewModel);
         }
+
 
         private void SortPath(Category category, Category parentCategory)
         {
@@ -288,7 +362,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 try
                 {
                     // var all categories
-                    var all = _categoryService.GetAll().ToList();
+                    var all = _categoryService.GetAll();
 
                     // Get all the categories
                     var maincategories = all.Where(x => x.ParentCategory == null).ToList();
@@ -350,7 +424,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                     TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
                     {
                         Message = "Error syncing paths",
-                        MessageType = GenericMessages.error
+                        MessageType = GenericMessages.danger
                     };                    
                 }
 
@@ -358,7 +432,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             }
         }
 
-        private List<Category> GetAllCategorySubCategories(Category parent, List<Category> allSubCategories, List<Category> subCats)
+        private static List<Category> GetAllCategorySubCategories(Category parent, List<Category> allSubCategories, List<Category> subCats)
         {
             foreach (var cat in allSubCategories)
             {

@@ -1,28 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Utilities;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Data.Entity;
+    using Domain.DomainModel;
+    using Domain.Events;
+    using Domain.Interfaces;
+    using Domain.Interfaces.Services;
+    using Data.Context;
+    using Domain.Constants;
+    using Utilities;
+
     public partial class PrivateMessageService : IPrivateMessageService
     {
-        private readonly IPrivateMessageRepository _privateMessageRepository;
-        private readonly IMembershipRepository _membershipRepository;
+        private readonly MVCForumContext _context;
+        private readonly ICacheService _cacheService;
 
-        public PrivateMessageService(IPrivateMessageRepository privateMessageRepository, IMembershipRepository membershipRepository)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context"> </param>
+        /// <param name="cacheService"></param>
+        public PrivateMessageService(IMVCForumContext context, ICacheService cacheService)
         {
-            _privateMessageRepository = privateMessageRepository;
-            _membershipRepository = membershipRepository;
+            _cacheService = cacheService;
+            _context = context as MVCForumContext;
         }
 
         public PrivateMessage SanitizeMessage(PrivateMessage privateMessage)
         {
             privateMessage.Message = StringUtils.GetSafeHtml(privateMessage.Message);
-            privateMessage.Subject = StringUtils.SafePlainText(privateMessage.Subject);
             return privateMessage;
         }
 
@@ -37,23 +45,32 @@ namespace MVCForum.Services
             message = SanitizeMessage(message);
             message.DateSent = DateTime.UtcNow;
             message.IsSentMessage = false;
-            var origMessage = _privateMessageRepository.Add(message);
 
-            // We create a sent message that sits in the users sent folder, this is 
-            // so that if the receiver deletes the message - The sender still has a record of it.
-            var sentMessage = new PrivateMessage
+            var e = new PrivateMessageEventArgs { PrivateMessage = message };
+            EventManager.Instance.FireBeforePrivateMessage(this, e);
+
+            if (!e.Cancel)
             {
-                IsSentMessage = true,
-                DateSent = message.DateSent,
-                Message = message.Message,
-                Subject = message.Subject,
-                UserFrom = message.UserFrom,
-                UserTo = message.UserTo
-            };
-            _privateMessageRepository.Add(sentMessage);
+                message = _context.PrivateMessage.Add(message);
+
+                // We create a sent message that sits in the users sent folder, this is 
+                // so that if the receiver deletes the message - The sender still has a record of it.
+                var sentMessage = new PrivateMessage
+                {
+                    IsSentMessage = true,
+                    DateSent = message.DateSent,
+                    Message = message.Message,
+                    UserFrom = message.UserFrom,
+                    UserTo = message.UserTo
+                };
+
+                _context.PrivateMessage.Add(sentMessage);
+
+                EventManager.Instance.FireAfterPrivateMessage(this, new PrivateMessageEventArgs { PrivateMessage = message });
+            }
 
             // Return the main message
-            return origMessage;
+            return message;
         }
 
         /// <summary>
@@ -63,66 +80,111 @@ namespace MVCForum.Services
         /// <returns></returns>
         public PrivateMessage Get(Guid id)
         {
-            return _privateMessageRepository.Get(id);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "Get-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                                                        .Include(x => x.UserTo)
+                                                                        .Include(x => x.UserFrom)
+                                                                        .FirstOrDefault(x => x.Id == id));
         }
 
-        /// <summary>
-        /// Save a private message
-        /// </summary>
-        /// <param name="message"></param>
-        public void Save(PrivateMessage message)
+        public IPagedList<PrivateMessageListItem> GetUsersPrivateMessages(int pageIndex, int pageSize, MembershipUser user)
         {
-            message = SanitizeMessage(message);
-            _privateMessageRepository.Update(message); 
+            var query = _context.PrivateMessage
+                .AsNoTracking()
+                .Include(x => x.UserFrom)
+                .Include(x => x.UserTo)
+                .Where(x => (x.UserTo.Id == user.Id && x.IsSentMessage != true) || (x.UserFrom.Id == user.Id && x.IsSentMessage == true))
+                .Select(x => new PrivateMessageListItem
+                {
+                    Date = x.DateSent,
+                    User = (x.IsSentMessage == true ? x.UserTo : x.UserFrom),
+                    HasUnreadMessages = (x.IsSentMessage != true && x.UserFrom.Id != user.Id && (x.IsRead == false))
+                })
+                .GroupBy(x => x.User.Id)
+                .Select(x => x.OrderByDescending(d => d.Date).FirstOrDefault())
+                .OrderByDescending(x => x.Date);
+
+            var total = query.Count();
+
+            var results = query
+                            .Skip((pageIndex - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
+            // Return a paged list
+            return new PagedList<PrivateMessageListItem>(results, pageIndex, pageSize, total);
         }
 
-        /// <summary>
-        /// Return list of paged private messages by sent user
-        /// </summary>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        public IPagedList<PrivateMessage> GetPagedSentMessagesByUser(int pageIndex, int pageSize, MembershipUser user)
+        public IPagedList<PrivateMessage> GetUsersPrivateMessages(int pageIndex, int pageSize, MembershipUser toUser, MembershipUser fromUser)
         {
-            return _privateMessageRepository.GetPagedSentMessagesByUser(pageIndex, pageSize, user);
+            var query = _context.PrivateMessage
+               .AsNoTracking()
+               .Include(x => x.UserFrom)
+               .Include(x => x.UserTo)
+               .Where(x => (x.UserFrom.Id == fromUser.Id && x.UserTo.Id == toUser.Id && x.IsSentMessage != true) || (x.UserFrom.Id == toUser.Id && x.UserTo.Id == fromUser.Id && x.IsSentMessage == true))
+               .OrderByDescending(x => x.DateSent);
+
+            var total = query.Count();
+
+            var results = query
+                            .Skip((pageIndex - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
+            // Return a paged list
+            return new PagedList<PrivateMessage>(results, pageIndex, pageSize, total);
         }
 
-        /// <summary>
-        /// Return list of paged private messages by received user
-        /// </summary>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        public IPagedList<PrivateMessage> GetPagedReceivedMessagesByUser(int pageIndex, int pageSize, MembershipUser user)
-        {
-            return _privateMessageRepository.GetPagedReceivedMessagesByUser(pageIndex, pageSize, user);
-        }
 
         /// <summary>
         /// Gets the last sent private message from a specific user
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public PrivateMessage GetLastSentPrivateMessage(Guid Id)
+        public PrivateMessage GetLastSentPrivateMessage(Guid id)
         {
-            return _privateMessageRepository.GetLastSentPrivateMessage(Id);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "GetLastSentPrivateMessage-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                                                        .AsNoTracking()
+                                                                        .Include(x => x.UserTo)
+                                                                        .Include(x => x.UserFrom)
+                                                                        .FirstOrDefault(x => x.UserFrom.Id == id));
         }
 
-        public PrivateMessage GetMatchingSentPrivateMessage(string title, DateTime date, Guid senderId, Guid receiverId)
+        public PrivateMessage GetMatchingSentPrivateMessage(DateTime date, Guid senderId, Guid receiverId)
         {
-            return _privateMessageRepository.GetMatchingSentPrivateMessage(title, date, senderId, receiverId);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "GetMatchingSentPrivateMessage-", date.ToString("d"), "-", senderId, "-", receiverId);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                .Include(x => x.UserTo)
+                                .Include(x => x.UserFrom)
+                                .FirstOrDefault(x => x.DateSent == date && x.UserFrom.Id == senderId && x.UserTo.Id == receiverId && x.IsSentMessage == true));
         }
 
         /// <summary>
         /// Gets all private messages sent by a user
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public IList<PrivateMessage> GetAllSentByUser(Guid Id)
+        public IList<PrivateMessage> GetAllSentByUser(Guid id)
         {
-            return _privateMessageRepository.GetAllSentByUser(Id);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "GetAllSentByUser-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                .AsNoTracking()
+                                .Include(x => x.UserTo)
+                                .Include(x => x.UserFrom)
+                                .Where(x => x.UserFrom.Id == id)
+                                .OrderByDescending(x => x.DateSent)
+                                .ToList());
+        }
+
+        public IList<PrivateMessage> GetPrivateMessagesOlderThan(int days)
+        {
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "GetPrivateMessagesOlderThan-", days);
+            return _cacheService.CachePerRequest(cacheKey, () =>
+            {
+                var date = DateTime.UtcNow.AddDays(-days);
+                return _context.PrivateMessage.Where(x => x.DateSent <= date).ToList();
+            });
         }
 
         /// <summary>
@@ -132,17 +194,28 @@ namespace MVCForum.Services
         /// <returns></returns>
         public int NewPrivateMessageCount(Guid userId)
         {
-            return _privateMessageRepository.NewPrivateMessageCount(userId);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "NewPrivateMessageCount-", userId);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                                                        .AsNoTracking()
+                                                                        .Include(x => x.UserTo)
+                                                                        .Include(x => x.UserFrom)
+                                                                        .Where(x => x.UserTo.Id == userId && !x.IsRead && x.IsSentMessage != true)
+                                                                        .GroupBy(x => x.UserFrom.Id).Count());
         }
 
         /// <summary>
         /// Gets all private messages received by a user
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        public IList<PrivateMessage> GetAllReceivedByUser(Guid Id)
+        public IList<PrivateMessage> GetAllReceivedByUser(Guid id)
         {
-            return _privateMessageRepository.GetAllReceivedByUser(Id);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "GetAllReceivedByUser-", id);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                                                        .AsNoTracking()
+                                                                        .Where(x => x.UserTo.Id == id)
+                                                                        .OrderByDescending(x => x.DateSent)
+                                                                        .ToList());
         }
 
 
@@ -154,7 +227,14 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<PrivateMessage> GetAllByUserToAnotherUser(Guid senderId, Guid receiverId)
         {
-            return _privateMessageRepository.GetAllByUserToAnotherUser(senderId, receiverId);
+            var cacheKey = string.Concat(CacheKeys.PrivateMessage.StartsWith, "GetAllByUserToAnotherUser-", senderId, receiverId);
+            return _cacheService.CachePerRequest(cacheKey, () => _context.PrivateMessage
+                                                                    .AsNoTracking()
+                                                                    .Include(x => x.UserTo)
+                                                                    .Include(x => x.UserFrom)
+                                                                    .Where(x => x.UserFrom.Id == senderId && x.UserTo.Id == receiverId)
+                                                                    .OrderByDescending(x => x.DateSent)
+                                                                    .ToList());
         }
 
         /// <summary>
@@ -163,7 +243,7 @@ namespace MVCForum.Services
         /// <param name="message"></param>
         public void DeleteMessage(PrivateMessage message)
         {
-            _privateMessageRepository.Delete(message);
+            _context.PrivateMessage.Remove(message);
         }
 
     }

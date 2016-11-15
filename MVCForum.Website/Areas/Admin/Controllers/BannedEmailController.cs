@@ -4,6 +4,7 @@ using MVCForum.Domain.Constants;
 using MVCForum.Domain.DomainModel;
 using MVCForum.Domain.Interfaces.Services;
 using MVCForum.Domain.Interfaces.UnitOfWork;
+using MVCForum.Website.Application;
 using MVCForum.Website.Areas.Admin.ViewModels;
 
 namespace MVCForum.Website.Areas.Admin.Controllers
@@ -40,8 +41,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             using (UnitOfWorkManager.NewUnitOfWork())
             {
                 var pageIndex = p ?? 1;
-                var allEmails = string.IsNullOrEmpty(search) ? _bannedEmailService.GetAllPaged(pageIndex, AppConstants.AdminListPageSize) :
-                                    _bannedEmailService.GetAllPaged(search, pageIndex, AppConstants.AdminListPageSize);
+                var allEmails = string.IsNullOrEmpty(search) ? _bannedEmailService.GetAllPaged(pageIndex, SiteConstants.Instance.AdminListPageSize) :
+                                    _bannedEmailService.GetAllPaged(search, pageIndex, SiteConstants.Instance.AdminListPageSize);
 
                 var vieWModel = new BannedEmailListViewModel
                     {
@@ -68,7 +69,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         var bannedEmail = new BannedEmail
                         {
                             Email = addBannedEmailViewModel.Email,
-                            DateAdded = DateTime.Now
+                            DateAdded = DateTime.UtcNow
                         };
 
                         _bannedEmailService.Add(bannedEmail);
@@ -86,7 +87,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
                         {
                             Message = "Please add an email address",
-                            MessageType = GenericMessages.error
+                            MessageType = GenericMessages.danger
                         };
                     }
 
@@ -98,7 +99,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                     TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
                     {
                         Message = LocalizationService.GetResourceString("Errors.GenericMessage"),
-                        MessageType = GenericMessages.error
+                        MessageType = GenericMessages.danger
                     }; 
                 }
             }
@@ -134,7 +135,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                     ViewBag.Message = new GenericMessageViewModel
                     {
                         Message = string.Format("Delete failed: {0}", ex.Message),
-                        MessageType = GenericMessages.error
+                        MessageType = GenericMessages.danger
                     };
                 }
 

@@ -7,6 +7,7 @@ using MVCForum.Domain.DomainModel;
 using MVCForum.Domain.Interfaces.Services;
 using MVCForum.Domain.Interfaces.UnitOfWork;
 using MVCForum.Utilities;
+using MVCForum.Website.Application;
 using MVCForum.Website.Areas.Admin.ViewModels;
 using MVCForum.Website.ViewModels.Mapping;
 using MembershipUser = MVCForum.Domain.DomainModel.MembershipUser;
@@ -15,7 +16,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
 {
     public partial class AccountController : BaseAdminController
     {
-        public IActivityService _activityService { get; set; }
+        public readonly IActivityService _activityService;    
         private readonly IRoleService _roleService;
         private readonly IPostService _postService;
         private readonly ITopicService _topicService;
@@ -117,8 +118,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             using (UnitOfWorkManager.NewUnitOfWork())
             {
                 var pageIndex = p ?? 1;
-                var allUsers = string.IsNullOrEmpty(search) ? MembershipService.GetAll(pageIndex, AppConstants.AdminListPageSize) :
-                                    MembershipService.SearchMembers(search, pageIndex, AppConstants.AdminListPageSize);
+                var allUsers = string.IsNullOrEmpty(search) ? MembershipService.GetAll(pageIndex, SiteConstants.Instance.AdminListPageSize) :
+                                    MembershipService.SearchMembers(search, pageIndex, SiteConstants.Instance.AdminListPageSize);
 
                 // Redisplay list of users
                 var allViewModelUsers = allUsers.Select(ViewModelMapping.UserToSingleMemberListViewModel).ToList();
@@ -129,13 +130,118 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                     Id = MembershipService.GetUser(User.Identity.Name).Id,
                     PageIndex = pageIndex,
                     TotalCount = allUsers.TotalCount,
-                    Search = search
+                    Search = search,
+                    TotalPages = allUsers.TotalPages
                 };
 
                 return View("List", memberListModel);
             }
         }
 
+        [Authorize(Roles = AppConstants.AdminRoleName)]
+        public ActionResult ManageUserPoints(Guid id)
+        {
+            using (UnitOfWorkManager.NewUnitOfWork())
+            {
+                var user = MembershipService.GetUser(id);
+                var viewModel = new ManageUsersPointsViewModel
+                {
+                    AllPoints = _membershipUserPointsService.GetByUser(user).OrderByDescending(x => x.DateAdded).ToList(),
+                    User = user
+                };
+                return View(viewModel);
+            }
+        }
+
+        [Authorize(Roles = AppConstants.AdminRoleName)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ManageUserPoints(ManageUsersPointsViewModel viewModel)
+        {
+            using (var uow = UnitOfWorkManager.NewUnitOfWork())
+            {
+                // Repopulate viewmodel
+                var user = MembershipService.GetUser(viewModel.Id);
+                viewModel.AllPoints = _membershipUserPointsService.GetByUser(user).OrderByDescending(x => x.DateAdded).ToList();
+                viewModel.User = user;
+
+                if (viewModel.Amount > 0)
+                {
+                    // Add the new points
+                    var newPoints = new MembershipUserPoints
+                    {
+                        DateAdded = DateTime.UtcNow,
+                        Notes = viewModel.Note,
+                        Points = (int)viewModel.Amount,
+                        PointsFor = PointsFor.Manual,
+                        User = user
+                    };
+
+                    _membershipUserPointsService.Add(newPoints);
+
+                    try
+                    {
+                        uow.Commit();
+
+                        ShowMessage(new GenericMessageViewModel
+                        {
+                            Message = "Points Added",
+                            MessageType = GenericMessages.success
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        uow.Rollback();
+                        LoggingService.Error(ex);
+                        ShowMessage(new GenericMessageViewModel
+                        {
+                            Message = "There was an error adding the points",
+                            MessageType = GenericMessages.danger
+                        });
+                    }
+                }
+
+
+                return RedirectToAction("ManageUserPoints", new { id = user.Id });
+            }
+        }
+
+        [Authorize(Roles = AppConstants.AdminRoleName)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult RemovePoints(Guid pointToRemove)
+        {
+            using (var uow = UnitOfWorkManager.NewUnitOfWork())
+            {
+                var point = _membershipUserPointsService.Get(pointToRemove);
+                var user = point.User;        
+                _membershipUserPointsService.Delete(point);
+
+                try
+                {
+                    uow.Commit();
+
+                    ShowMessage(new GenericMessageViewModel
+                    {
+                        Message = "Points Removed",
+                        MessageType = GenericMessages.success
+                    });
+                }
+                catch (Exception ex)
+                {
+                    uow.Rollback();
+                    LoggingService.Error(ex);
+                    ShowMessage(new GenericMessageViewModel
+                    {
+                        Message = "There was an error",
+                        MessageType = GenericMessages.danger
+                    });
+                }
+
+                return RedirectToAction("ManageUserPoints", new {id = user.Id });
+
+            }            
+        }
 
         /// <summary>
         /// Manage users
@@ -149,11 +255,11 @@ namespace MVCForum.Website.Areas.Admin.Controllers
 
 
         [Authorize(Roles = AppConstants.AdminRoleName)]
-        public ActionResult Edit(Guid Id)
+        public ActionResult Edit(Guid id)
         {
             using (UnitOfWorkManager.NewUnitOfWork())
             {
-                var user = MembershipService.GetUser(Id);
+                var user = MembershipService.GetUser(id);
 
                 var viewModel = ViewModelMapping.UserToMemberEditViewModel(user);
                 viewModel.AllRoles = _roleService.AllRoles();
@@ -178,6 +284,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 user.Facebook = userModel.Facebook;
                 user.IsApproved = userModel.IsApproved;
                 user.IsLockedOut = userModel.IsLockedOut;
+                user.IsBanned = userModel.IsBanned;
                 user.Location = userModel.Location;
                 user.PasswordAnswer = userModel.PasswordAnswer;
                 user.PasswordQuestion = userModel.PasswordQuestion;
@@ -188,25 +295,6 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 user.DisableEmailNotifications = userModel.DisableEmailNotifications;
                 user.DisablePosting = userModel.DisablePosting;
                 user.DisablePrivateMessages = userModel.DisablePrivateMessages;
-
-                // If there is a location try and save the longitude and latitude
-                if (!string.IsNullOrEmpty(user.Location))
-                {
-                    try
-                    {
-                        var longLat = LocalisationUtils.GeocodeGoogle(user.Location);
-                        if (longLat != null && longLat[0] != "0")
-                        {
-                            // Got the long lat and save them to the user
-                            user.Latitude = longLat[0];
-                            user.Longitude = longLat[1];
-                        }
-                    }
-                    catch
-                    {
-                        LoggingService.Error("Error getting longitude and latitude from location");
-                    }
-                }
 
                 try
                 {
@@ -243,9 +331,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         throw new ApplicationException("Cannot delete user - user does not exist");
                     }
 
-                    DeleteUsersPostsPollsVotesAndPoints(user, unitOfWork);
-
-                    MembershipService.Delete(user);
+                    MembershipService.Delete(user, unitOfWork);
 
                     ViewBag.Message = new GenericMessageViewModel
                     {
@@ -261,7 +347,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                     ViewBag.Message = new GenericMessageViewModel
                     {
                         Message = string.Format("Delete failed: {0}", ex.Message),
-                        MessageType = GenericMessages.error
+                        MessageType = GenericMessages.danger
                     };
                 }
                 return RedirectToAction("Manage", new {p, search});
@@ -391,7 +477,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             return View(role);
         }
 
-        [Authorize(Roles = AppConstants.AdminRoleName + "," + AppConstants.ModeratorRoleName)]
+        [Authorize(Roles = AppConstants.AdminRoleName)]
         public ActionResult DeleteUsersPosts(Guid id, bool profileClick = false)
         {
             var user = MembershipService.GetUser(id);
@@ -400,7 +486,8 @@ namespace MVCForum.Website.Areas.Admin.Controllers
             {
                 if (!user.Roles.Any(x => x.RoleName.Contains(AppConstants.AdminRoleName)))
                 {
-                    DeleteUsersPostsPollsVotesAndPoints(user, unitOfWork);
+                    MembershipService.ScrubUsers(user, unitOfWork);
+
                     try
                     {
                         unitOfWork.Commit();
@@ -417,7 +504,7 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                         TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
                         {
                             Message = "Error trying to delete posts and topics",
-                            MessageType = GenericMessages.error
+                            MessageType = GenericMessages.danger
                         };
                     }
                 }
@@ -434,74 +521,6 @@ namespace MVCForum.Website.Areas.Admin.Controllers
                 return View("Edit", viewModel);
             }
 
-        }
-
-        [Authorize(Roles = AppConstants.AdminRoleName + "," + AppConstants.ModeratorRoleName)]
-        public ActionResult BanMember(Guid id)
-        {
-            using (var unitOfWork = UnitOfWorkManager.NewUnitOfWork())
-            {
-                var user = MembershipService.GetUser(id);
-                if (!user.Roles.Any(x => x.RoleName.Contains(AppConstants.AdminRoleName)))
-                {
-                    user.IsLockedOut = true;
-
-                    try
-                    {
-                        unitOfWork.Commit();
-                        TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
-                        {
-                            Message = "User is now banned",
-                            MessageType = GenericMessages.success
-                        };
-                    }
-                    catch (Exception ex)
-                    {
-                        unitOfWork.Rollback();
-                        LoggingService.Error(ex);
-                        TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
-                        {
-                            Message = "Error trying to ban user",
-                            MessageType = GenericMessages.error
-                        };
-                    }   
-                }
-                return Redirect(user.NiceUrl);
-            }
-        }
-
-        [Authorize(Roles = AppConstants.AdminRoleName + "," + AppConstants.ModeratorRoleName)]
-        public ActionResult UnBanMember(Guid id)
-        {
-            using (var unitOfWork = UnitOfWorkManager.NewUnitOfWork())
-            {
-                var user = MembershipService.GetUser(id);
-                if (!user.Roles.Any(x => x.RoleName.Contains(AppConstants.AdminRoleName)))
-                {
-                    user.IsLockedOut = false;
-
-                    try
-                    {
-                        unitOfWork.Commit();
-                        TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
-                        {
-                            Message = "User is now unbanned",
-                            MessageType = GenericMessages.success
-                        };
-                    }
-                    catch (Exception ex)
-                    {
-                        unitOfWork.Rollback();
-                        LoggingService.Error(ex);
-                        TempData[AppConstants.MessageViewBagName] = new GenericMessageViewModel
-                        {
-                            Message = "Error trying to un ban user",
-                            MessageType = GenericMessages.error
-                        };
-                    }
-                }
-                return Redirect(user.NiceUrl);
-            }
         }
 
         [HttpPost]
@@ -536,113 +555,6 @@ namespace MVCForum.Website.Areas.Admin.Controllers
         }
 
         #endregion
-
-        private void DeleteUsersPostsPollsVotesAndPoints(MembershipUser user, IUnitOfWork unitOfWork)
-        {
-            // Delete all file uploads
-            var files = _uploadedFileService.GetAllByUser(user.Id);
-            var filesList = new List<UploadedFile>();
-            filesList.AddRange(files);
-            foreach (var file in filesList)
-            {
-                // store the file path as we'll need it to delete on the file system
-                var filePath = file.FilePath;
-
-                // Now delete it
-                _uploadedFileService.Delete(file);
-
-                // And finally delete from the file system
-                System.IO.File.Delete(Server.MapPath(filePath));
-            }
-
-            // Delete all posts
-            var posts = user.Posts;
-            var postList = new List<Post>();
-            postList.AddRange(posts);
-            foreach (var post in postList)
-            {
-                post.Files.Clear();
-                _postService.Delete(post);
-            }
-
-            unitOfWork.SaveChanges();
-
-            // Also clear their poll votes
-            var userPollVotes = user.PollVotes;
-            if (userPollVotes.Any())
-            {
-                var pollList = new List<PollVote>();
-                pollList.AddRange(userPollVotes);
-                foreach (var vote in pollList)
-                {
-                    vote.User = null;
-                    _pollVoteService.Delete(vote);
-                }
-                user.PollVotes.Clear();
-            }
-
-            unitOfWork.SaveChanges();
-
-
-            // Also clear their polls
-            var userPolls = user.Polls;
-            if (userPolls.Any())
-            {
-                var polls = new List<Poll>();
-                polls.AddRange(userPolls);
-                foreach (var poll in polls)
-                {
-                    //Delete the poll answers
-                    var pollAnswers = poll.PollAnswers;
-                    if (pollAnswers.Any())
-                    {
-                        var pollAnswersList = new List<PollAnswer>();
-                        pollAnswersList.AddRange(pollAnswers);
-                        foreach (var answer in pollAnswersList)
-                        {
-                            answer.Poll = null;
-                            _pollAnswerService.Delete(answer);
-                        }
-                    }
-
-                    poll.PollAnswers.Clear();
-                    poll.User = null;
-                    _pollService.Delete(poll);
-                }
-                user.Polls.Clear();
-            }
-
-            unitOfWork.SaveChanges();
-
-            // Delete all topics
-            var topics = user.Topics;
-            var topicList = new List<Topic>();
-            topicList.AddRange(topics);
-            foreach (var topic in topicList)
-            {
-                _topicService.Delete(topic);
-            }
-
-            // Also clear their points
-            var userPoints = user.Points;
-            if (userPoints.Any())
-            {
-                var pointsList = new List<MembershipUserPoints>();
-                pointsList.AddRange(userPoints);
-                foreach (var point in pointsList)
-                {
-                    point.User = null;
-                    _membershipUserPointsService.Delete(point);
-                }
-                user.Points.Clear();
-            }
-
-            unitOfWork.SaveChanges();
-
-            // Now clear all activities for this user
-            var usersActivities = _activityService.GetDataFieldByGuid(user.Id);
-            _activityService.Delete(usersActivities.ToList());
-        }
 
     }
 }

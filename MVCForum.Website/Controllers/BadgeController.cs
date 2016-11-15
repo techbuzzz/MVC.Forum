@@ -1,18 +1,17 @@
-﻿using System;
-using System.Web.Mvc;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Services;
-using MVCForum.Domain.Interfaces.UnitOfWork;
-using MVCForum.Website.ViewModels;
-
-namespace MVCForum.Website.Controllers
+﻿namespace MVCForum.Website.Controllers
 {
+    using System;
+    using System.Web.Mvc;
+    using Domain.DomainModel;
+    using Domain.Interfaces.Services;
+    using Domain.Interfaces.UnitOfWork;
+    using ViewModels;
+
     public partial class BadgeController : BaseController
     {
         private readonly IBadgeService _badgeService;
         private readonly IPostService _postService;
-
-        private MembershipUser LoggedOnUser;
+        private readonly IFavouriteService _favouriteService;
 
         /// <summary>
         /// Constructor
@@ -25,19 +24,20 @@ namespace MVCForum.Website.Controllers
         /// <param name="localizationService"></param>
         /// <param name="roleService"> </param>
         /// <param name="settingsService"> </param>
+        /// <param name="favouriteService"></param>
+        /// <param name="cacheService"></param>
         public BadgeController(ILoggingService loggingService,
             IUnitOfWorkManager unitOfWorkManager,
             IBadgeService badgeService,
             IPostService postService,
             IMembershipService membershipService,
             ILocalizationService localizationService, IRoleService roleService,
-            ISettingsService settingsService)
-            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService)
+            ISettingsService settingsService, IFavouriteService favouriteService, ICacheService cacheService)
+            : base(loggingService, unitOfWorkManager, membershipService, localizationService, roleService, settingsService, cacheService)
         {
             _badgeService = badgeService;
             _postService = postService;
-
-            LoggedOnUser = UserIsAuthenticated ? MembershipService.GetUser(Username) : null;
+            _favouriteService = favouriteService;
         }
 
 
@@ -49,7 +49,8 @@ namespace MVCForum.Website.Controllers
             {
                 try
                 {
-                    var databaseUpdateNeededOne = _badgeService.ProcessBadge(BadgeType.VoteUp, LoggedOnUser);
+                    var loggedOnUser = MembershipService.GetUser(LoggedOnReadOnlyUser.UserName);
+                    var databaseUpdateNeededOne = _badgeService.ProcessBadge(BadgeType.VoteUp, loggedOnUser);
                     if (databaseUpdateNeededOne)
                     {
                         unitOfwork.SaveChanges();
@@ -83,7 +84,8 @@ namespace MVCForum.Website.Controllers
             {
                 try
                 {
-                    var databaseUpdateNeededOne = _badgeService.ProcessBadge(BadgeType.VoteDown, LoggedOnUser);
+                    var loggedOnUser = MembershipService.GetUser(LoggedOnReadOnlyUser.UserName);
+                    var databaseUpdateNeededOne = _badgeService.ProcessBadge(BadgeType.VoteDown, loggedOnUser);
                     if (databaseUpdateNeededOne)
                     {
                         unitOfwork.SaveChanges();
@@ -120,7 +122,8 @@ namespace MVCForum.Website.Controllers
                 {
                     try
                     {
-                        var databaseUpdateNeeded = _badgeService.ProcessBadge(BadgeType.Post, LoggedOnUser);
+                        var loggedOnUser = MembershipService.GetUser(LoggedOnReadOnlyUser.UserName);
+                        var databaseUpdateNeeded = _badgeService.ProcessBadge(BadgeType.Post, loggedOnUser);
 
                         if (databaseUpdateNeeded)
                         {
@@ -161,6 +164,57 @@ namespace MVCForum.Website.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        public void Favourite(FavouriteViewModel favouriteViewModel)
+        {
+            using (var unitOfwork = UnitOfWorkManager.NewUnitOfWork())
+            {
+                try
+                {
+                    var favourite = _favouriteService.Get(favouriteViewModel.FavouriteId);
+                    var databaseUpdateNeeded = _badgeService.ProcessBadge(BadgeType.Favourite, favourite.Member) | _badgeService.ProcessBadge(BadgeType.Favourite, favourite.Post.User);
+
+                    if (databaseUpdateNeeded)
+                    {
+                        unitOfwork.Commit();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    unitOfwork.Rollback();
+                    LoggingService.Error(ex);
+                }
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        public void ProfileBadgeCheck()
+        {
+            using (var unitOfwork = UnitOfWorkManager.NewUnitOfWork())
+            {
+                try
+                {
+                    if (LoggedOnReadOnlyUser != null)
+                    {
+                        var loggedOnUser = MembershipService.GetUser(LoggedOnReadOnlyUser.UserName);
+                        var databaseUpdateNeeded = _badgeService.ProcessBadge(BadgeType.Profile, loggedOnUser);
+
+                        if (databaseUpdateNeeded)
+                        {
+                            unitOfwork.Commit();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    unitOfwork.Rollback();
+                    LoggingService.Error(ex);
+                }
+            }
+        }
+
+        [HttpPost]
         public void Time(TimeBadgeViewModel timeBadgeViewModel)
         {
             using (var unitOfwork = UnitOfWorkManager.NewUnitOfWork())
@@ -189,6 +243,14 @@ namespace MVCForum.Website.Controllers
             using (UnitOfWorkManager.NewUnitOfWork())
             {
                 var allBadges = _badgeService.GetallBadges();
+
+                // Localise the badge names
+                foreach (var item in allBadges)
+                {
+                    var partialKey = string.Concat("Badge.", item.Name);
+                    item.DisplayName = LocalizationService.GetResourceString(string.Concat(partialKey, ".Name"));
+                    item.Description = LocalizationService.GetResourceString(string.Concat(partialKey, ".Desc"));
+                }
 
                 var badgesListModel = new AllBadgesViewModel
                 {

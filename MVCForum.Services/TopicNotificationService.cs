@@ -1,16 +1,26 @@
-﻿using System.Collections.Generic;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Domain.Interfaces.Repositories;
-using MVCForum.Domain.Interfaces.Services;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Data.Entity;
+    using Domain.DomainModel;
+    using Domain.Interfaces;
+    using Domain.Interfaces.Services;
+    using Data.Context;
+
+
     public partial class TopicNotificationService : ITopicNotificationService
     {
-        private readonly ITopicNotificationRepository _topicNotificationRepository;
-        public TopicNotificationService(ITopicNotificationRepository topicNotificationRepository)
+        private readonly MVCForumContext _context;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="context"> </param>
+        public TopicNotificationService(IMVCForumContext context)
         {
-            _topicNotificationRepository = topicNotificationRepository;
+            _context = context as MVCForumContext;
         }
 
         /// <summary>
@@ -19,7 +29,7 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<TopicNotification> GetAll()
         {
-            return _topicNotificationRepository.GetAll();
+            return _context.TopicNotification.ToList();
         }
 
         /// <summary>
@@ -28,7 +38,7 @@ namespace MVCForum.Services
         /// <param name="notification"></param>
         public void Delete(TopicNotification notification)
         {
-            _topicNotificationRepository.Delete(notification);
+            _context.TopicNotification.Remove(notification);
         }
 
         /// <summary>
@@ -38,7 +48,10 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<TopicNotification> GetByTopic(Topic topic)
         {
-            return _topicNotificationRepository.GetByTopic(topic);
+            return _context.TopicNotification
+                .Where(x => x.Topic.Id == topic.Id)
+                .AsNoTracking()
+                .ToList();
         }
 
         /// <summary>
@@ -48,7 +61,9 @@ namespace MVCForum.Services
         /// <returns></returns>
         public IList<TopicNotification> GetByUser(MembershipUser user)
         {
-            return _topicNotificationRepository.GetByUser(user);
+            return _context.TopicNotification
+                .Where(x => x.User.Id == user.Id)
+                .ToList();
         }
 
         /// <summary>
@@ -56,19 +71,31 @@ namespace MVCForum.Services
         /// </summary>
         /// <param name="user"></param>
         /// <param name="topic"></param>
+        /// <param name="addTracking">If you need to delete these notifications then pass true into addtracking</param>
         /// <returns></returns>
-        public IList<TopicNotification> GetByUserAndTopic(MembershipUser user, Topic topic)
+        public IList<TopicNotification> GetByUserAndTopic(MembershipUser user, Topic topic, bool addTracking = false)
         {
-            return _topicNotificationRepository.GetByUserAndTopic(user, topic);
+            var notifications = _context.TopicNotification
+                .Where(x => x.User.Id == user.Id && x.Topic.Id == topic.Id);
+            if (addTracking)
+            {
+                return notifications.ToList();
+            }
+            return notifications.AsNoTracking().ToList();
         }
 
         /// <summary>
         /// Add a new topic notification
         /// </summary>
         /// <param name="topicNotification"></param>
-        public void Add(TopicNotification topicNotification)
+        public TopicNotification Add(TopicNotification topicNotification)
         {
-            _topicNotificationRepository.Add(topicNotification);
+            return _context.TopicNotification.Add(topicNotification);
+        }
+
+        public TopicNotification Get(Guid id)
+        {
+            return _context.TopicNotification.FirstOrDefault(x => x.Id == id);
         }
     }
 }

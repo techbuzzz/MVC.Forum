@@ -15,9 +15,10 @@ namespace MVCForum.Website.ViewModels
         public Dictionary<Category, PermissionSet> AllPermissionSets { get; set; }
     }
 
-    public class ViewCategoryViewModel
+
+    public class CategoryViewModel
     {
-        public PagedList<Topic> Topics { get; set; }
+        public List<TopicViewModel> Topics { get; set; }
         public PermissionSet Permissions { get; set; }
         public Category Category { get; set; }
         public CategoryListViewModel SubCategories { get; set; }
@@ -26,6 +27,15 @@ namespace MVCForum.Website.ViewModels
 
         public int? PageIndex { get; set; }
         public int? TotalCount { get; set; }
+        public int? TotalPages { get; set; }
+        public int PostCount { get; set; }
+
+        // Topic info
+        public Topic LatestTopic { get; set; }
+        public int TopicCount { get; set; }
+
+        // Misc
+        public bool ShowUnSubscribedLink { get; set; }
     }
 
     public class SubCategoryViewModel
@@ -34,8 +44,4 @@ namespace MVCForum.Website.ViewModels
         public Category ParentCategory { get; set; }
     }
 
-    public class IndexCategoryViewModel
-    {
-        public CategoryListViewModel Categories { get; set; }
-    }
 }

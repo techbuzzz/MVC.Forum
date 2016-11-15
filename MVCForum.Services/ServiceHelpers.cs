@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MVCForum.Domain.DomainModel;
-using MVCForum.Utilities;
-
-namespace MVCForum.Services
+﻿namespace MVCForum.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Domain.DomainModel;
+    using Utilities;
 
     public static class ServiceHelpers
     {        
@@ -19,7 +18,7 @@ namespace MVCForum.Services
         /// <returns></returns>
         public static string ReturnCacheKey(Guid categoryId, Guid roleId)
         {
-            return string.Format("permissioncache-{0}-{1}", categoryId, roleId);
+            return $"permissioncache-{categoryId}-{roleId}";
         }
         #endregion
 
@@ -57,7 +56,7 @@ namespace MVCForum.Services
                 {
                     // See if there is only one. And if it matches exactly
                     // someone else has this, grab all like it and do a count, stick a suffix on
-                    slug = string.Concat(slug, "-", matchingEntities.Count());
+                    slug = string.Concat(slug, "-", matchingEntities.Count);
                 }
             }
             else
@@ -68,7 +67,7 @@ namespace MVCForum.Services
                     // Name/Title has changed
                     if (matchingEntities.Any())
                     {
-                        slug = string.Concat(slug, "-", matchingEntities.Count());
+                        slug = string.Concat(slug, "-", matchingEntities.Count);
                     }
                 }
             }
